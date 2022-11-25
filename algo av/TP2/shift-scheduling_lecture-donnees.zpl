@@ -1,6 +1,12 @@
 param fichier := "./shift-scheduling-5.zplread" ;
 do print fichier ;
 
+### how to run the program
+## launch scip.exe
+## type in the scip prompt :
+#   * read shift-scheduling_lecture-donnees.zpl
+#   * optimize
+#   * display solution
 
 ####################
 # Horizon = nb days
@@ -139,32 +145,36 @@ subto q3_2:
           forall <s2> in Services:
             (2-ForbiddenSeq[s1,s2]-assigned[p,d,s1]) >= assigned[p,d+1,s2];
 
-"""
-Exprimer des contraintes conditionnelles pour que :
-1. à aucun moment durant la période il y ait une séquence de jours non travaillés par p qui fasse moins de MinConsecutiveDaysOff[p] jours ;
-2. à aucun moment durant la période, le nombre. de jours de service consécutifs pour la personne p ne soit inférieur à MinConsecutiveShifts[p].
-Indication 1 : Pour contraindre qu'il n'y ait pas par exemple de séquence de repos de moins de 3 jours qui commence un certain jour d, on peut écrire vif assigned [p ,d -1 , s ] == 1 and assigned [p ,d , s ] == 0 then assigned [p , d +1 , s ] + assigned [p , d +2 , s ] == 0 end ;
-Indication 2 : C'est plus facile de travailler avec, pour chaque personne p et chaque jour d, une variable booléenne wpd qui vaudra 1 si p travaille le jour d, 0 sinon, c'est-à-dire que wpd = 1 quand assigned[p; d; s] vaut 1 pour au moins l'un des services s. S'il y a trois services, on peut modéliser cela avec la double contrainte : wpd ≤ assigne[p; d; E] + assigne[p; d; D] + assigne[p; d; L] ≤ 3 * wpd or, de manière équivalente puisqu'on sait que personne ne peut effectuer plus d'un service par jour :
-wpd = assigned[p; d; E] + assigned[p; d; D] + assigned[p; d; L]
-"""
+
+# Exprimer des contraintes conditionnelles pour que :
+# 1. à aucun moment durant la période il y ait une séquence de jours non travaillés par p qui fasse moins de MinConsecutiveDaysOff[p] jours ;
+# 2. à aucun moment durant la période, le nombre. de jours de service consécutifs pour la personne p ne soit inférieur à MinConsecutiveShifts[p].
+# Indication 1 : Pour contraindre qu'il n'y ait pas par exemple de séquence de repos de moins de 3 jours qui commence un certain jour d, on peut écrire vif assigned [p ,d -1 , s ] == 1 and assigned [p ,d , s ] == 0 then assigned [p , d +1 , s ] + assigned [p , d +2 , s ] == 0 end ;
+# Indication 2 : C'est plus facile de travailler avec, pour chaque personne p et chaque jour d, une variable booléenne wpd qui vaudra 1 si p travaille le jour d, 0 sinon, c'est-à-dire que wpd = 1 quand assigned[p; d; s] vaut 1 pour au moins l'un des services s. S'il y a trois services, on peut modéliser cela avec la double contrainte : wpd ≤ assigne[p; d; E] + assigne[p; d; D] + assigne[p; d; L] ≤ 3 * wpd or, de manière équivalente puisqu'on sait que personne ne peut effectuer plus d'un service par jour :
+# wpd = assigned[p; d; E] + assigned[p; d; D] + assigned[p; d; L]
+
 subto q4_1:
   forall <p> in Personnes:
     forall <d> in Days with d<(horizon-MinConsecutiveDaysOff[p]) :
       (sum <j> in { d..d+MinConsecutiveDaysOff[p]} : sum <s> in Services : assigned[p,j,s]) >= MinConsecutiveDaysOff[p];
 
-""" On observe que les contraintes conditionnelles précédentes génèrent beaucoup de
-nouvelles variables et de contraintes conditionnelles. Réexprimer directement les contraintes
-ci-dessus à l'aide de contraintes linéaires, en observant par exemple que si, pour p, le nombre
-minimum de jours consécutifs travaillés est 3, alors il suffit d'interdire les séquences de la forme
-Off - On - Off, Off - On - On - Off. """
+# On observe que les contraintes conditionnelles précédentes génèrent beaucoup de
+# nouvelles variables et de contraintes conditionnelles. Réexprimer directement les contraintes
+# ci-dessus à l'aide de contraintes linéaires, en observant par exemple que si, pour p, le nombre
+# minimum de jours consécutifs travaillés est 3, alors il suffit d'interdire les séquences de la forme
+# Off - On - Off, Off - On - On - Off.
 subto q4_2:
   forall <p> in Personnes:
-    forall <d> in Days with d<(horizon-MinConsecutiveShifts[p]) :
-      (sum <j> in { d..d+MinConsecutiveShifts[p]} : sum <s> in Services : assigned[p,j,s]) >= MinConsecutiveShifts[p];
+    forall <d> in Days with d<horizon-1:
+      forall <s1> in Services:
+        forall <s2> in Services:
+          (2-ForbiddenSeq[s1,s2]-assigned[p,d,s1]) >= assigned[p,d+1,s2];
+# subto q4_2:
+#   forall <p> in Personnes:
+#     forall <d> in Days with d<(horizon-MinConsecutiveShifts[p]) :
+#       (sum <j> in { d..d+MinConsecutiveShifts[p]} : sum <s> in Services : assigned[p,j,s]) >= MinConsecutiveShifts[p];
 
-"""Les instances ont aussi des paramètres qui pondèrent les
-écarts, en terme de nombre de personnels, par rapport aux nombres requis pour chaque service ; ainsi
-que des paramètres qui permettent de prendre en compte certaines préférences des personnels."""
+# Les instances ont aussi des paramètres qui pondèrent les écarts, en terme de nombre de personnels, par rapport aux nombres requis pour chaque service ; ainsi que des paramètres qui permettent de prendre en compte certaines préférences des personnels.
 subto q5_1:
   forall <d,s> in Days*Services:
     sum <p> in Personnes : assigned[p,d,s] <= requirement[d,s] + aboveCoverPen[d,s] ;
