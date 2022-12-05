@@ -1,0 +1,1000 @@
+   0  $accept : %entry% $end
+
+   1  program : INT DIMENSIONS OF config END opt_statements EOF
+
+   2  config : INT DOT_DOT INT
+   3         | fields
+
+   4  fields : field
+   5         | fields COMMA field
+
+   6  field : ID OF INT DOT_DOT INT
+
+   7  opt_statements :
+   8                 | statement opt_statements
+
+   9  statement : cell ASSIGN expression
+  10            | ID ASSIGN expression
+  11            | IF condition THEN opt_statements END
+  12            | IF condition THEN opt_statements ELSE opt_statements END
+  13            | IF condition THEN opt_statements ELSEIF condition THEN opt_statements END
+  14            | IF condition THEN opt_statements ELSEIF condition THEN opt_statements ELSE opt_statements END
+
+  15  cell : LBRACKET INT COMMA INT RBRACKET
+
+  16  expression : signe
+  17             | operator
+
+  18  condition : expression EQUAL expression
+  19            | expression NOTEQUAL expression
+  20            | expression SI expression
+  21            | expression SS expression
+  22            | expression EI expression
+  23            | expression ES expression
+
+  24  signe : raw_expression
+  25        | MINUS raw_expression
+  26        | PLUS raw_expression
+
+  27  raw_expression : cell
+  28                 | INT
+  29                 | ID
+  30                 | LPARENT expression RPARENT
+
+  31  operator : expression PLUS raw_expression
+  32           | expression MINUS raw_expression
+  33           | expression MULT raw_expression
+  34           | expression DIV raw_expression
+  35           | expression MOD raw_expression
+
+  36  %entry% : '\001' program
+
+state 0
+	$accept : . %entry% $end  (0)
+
+	'\001'  shift 1
+	.  error
+
+	%entry%  goto 2
+
+
+state 1
+	%entry% : '\001' . program  (36)
+
+	INT  shift 3
+	.  error
+
+	program  goto 4
+
+
+state 2
+	$accept : %entry% . $end  (0)
+
+	$end  accept
+
+
+state 3
+	program : INT . DIMENSIONS OF config END opt_statements EOF  (1)
+
+	DIMENSIONS  shift 5
+	.  error
+
+
+state 4
+	%entry% : '\001' program .  (36)
+
+	.  reduce 36
+
+
+state 5
+	program : INT DIMENSIONS . OF config END opt_statements EOF  (1)
+
+	OF  shift 6
+	.  error
+
+
+state 6
+	program : INT DIMENSIONS OF . config END opt_statements EOF  (1)
+
+	ID  shift 7
+	INT  shift 8
+	.  error
+
+	config  goto 9
+	fields  goto 10
+	field  goto 11
+
+
+state 7
+	field : ID . OF INT DOT_DOT INT  (6)
+
+	OF  shift 12
+	.  error
+
+
+state 8
+	config : INT . DOT_DOT INT  (2)
+
+	DOT_DOT  shift 13
+	.  error
+
+
+state 9
+	program : INT DIMENSIONS OF config . END opt_statements EOF  (1)
+
+	END  shift 14
+	.  error
+
+
+state 10
+	config : fields .  (3)
+	fields : fields . COMMA field  (5)
+
+	COMMA  shift 15
+	END  reduce 3
+
+
+state 11
+	fields : field .  (4)
+
+	.  reduce 4
+
+
+state 12
+	field : ID OF . INT DOT_DOT INT  (6)
+
+	INT  shift 16
+	.  error
+
+
+state 13
+	config : INT DOT_DOT . INT  (2)
+
+	INT  shift 17
+	.  error
+
+
+state 14
+	program : INT DIMENSIONS OF config END . opt_statements EOF  (1)
+	opt_statements : .  (7)
+
+	LBRACKET  shift 18
+	IF  shift 19
+	ID  shift 20
+	EOF  reduce 7
+
+	opt_statements  goto 21
+	statement  goto 22
+	cell  goto 23
+
+
+state 15
+	fields : fields COMMA . field  (5)
+
+	ID  shift 7
+	.  error
+
+	field  goto 24
+
+
+state 16
+	field : ID OF INT . DOT_DOT INT  (6)
+
+	DOT_DOT  shift 25
+	.  error
+
+
+state 17
+	config : INT DOT_DOT INT .  (2)
+
+	.  reduce 2
+
+
+state 18
+	cell : LBRACKET . INT COMMA INT RBRACKET  (15)
+
+	INT  shift 26
+	.  error
+
+
+state 19
+	statement : IF . condition THEN opt_statements END  (11)
+	statement : IF . condition THEN opt_statements ELSE opt_statements END  (12)
+	statement : IF . condition THEN opt_statements ELSEIF condition THEN opt_statements END  (13)
+	statement : IF . condition THEN opt_statements ELSEIF condition THEN opt_statements ELSE opt_statements END  (14)
+
+	LBRACKET  shift 18
+	LPARENT  shift 27
+	PLUS  shift 28
+	MINUS  shift 29
+	ID  shift 30
+	INT  shift 31
+	.  error
+
+	cell  goto 32
+	expression  goto 33
+	condition  goto 34
+	signe  goto 35
+	operator  goto 36
+	raw_expression  goto 37
+
+
+state 20
+	statement : ID . ASSIGN expression  (10)
+
+	ASSIGN  shift 38
+	.  error
+
+
+state 21
+	program : INT DIMENSIONS OF config END opt_statements . EOF  (1)
+
+	EOF  shift 39
+	.  error
+
+
+state 22
+	opt_statements : statement . opt_statements  (8)
+	opt_statements : .  (7)
+
+	LBRACKET  shift 18
+	IF  shift 19
+	ID  shift 20
+	EOF  reduce 7
+	END  reduce 7
+	ELSEIF  reduce 7
+	ELSE  reduce 7
+
+	opt_statements  goto 40
+	statement  goto 22
+	cell  goto 23
+
+
+state 23
+	statement : cell . ASSIGN expression  (9)
+
+	ASSIGN  shift 41
+	.  error
+
+
+state 24
+	fields : fields COMMA field .  (5)
+
+	.  reduce 5
+
+
+state 25
+	field : ID OF INT DOT_DOT . INT  (6)
+
+	INT  shift 42
+	.  error
+
+
+state 26
+	cell : LBRACKET INT . COMMA INT RBRACKET  (15)
+
+	COMMA  shift 43
+	.  error
+
+
+state 27
+	raw_expression : LPARENT . expression RPARENT  (30)
+
+	LBRACKET  shift 18
+	LPARENT  shift 27
+	PLUS  shift 28
+	MINUS  shift 29
+	ID  shift 30
+	INT  shift 31
+	.  error
+
+	cell  goto 32
+	expression  goto 44
+	signe  goto 35
+	operator  goto 36
+	raw_expression  goto 37
+
+
+state 28
+	signe : PLUS . raw_expression  (26)
+
+	LBRACKET  shift 18
+	LPARENT  shift 27
+	ID  shift 30
+	INT  shift 31
+	.  error
+
+	cell  goto 32
+	raw_expression  goto 45
+
+
+state 29
+	signe : MINUS . raw_expression  (25)
+
+	LBRACKET  shift 18
+	LPARENT  shift 27
+	ID  shift 30
+	INT  shift 31
+	.  error
+
+	cell  goto 32
+	raw_expression  goto 46
+
+
+state 30
+	raw_expression : ID .  (29)
+
+	.  reduce 29
+
+
+state 31
+	raw_expression : INT .  (28)
+
+	.  reduce 28
+
+
+state 32
+	raw_expression : cell .  (27)
+
+	.  reduce 27
+
+
+state 33
+	condition : expression . EQUAL expression  (18)
+	condition : expression . NOTEQUAL expression  (19)
+	condition : expression . SI expression  (20)
+	condition : expression . SS expression  (21)
+	condition : expression . EI expression  (22)
+	condition : expression . ES expression  (23)
+	operator : expression . PLUS raw_expression  (31)
+	operator : expression . MINUS raw_expression  (32)
+	operator : expression . MULT raw_expression  (33)
+	operator : expression . DIV raw_expression  (34)
+	operator : expression . MOD raw_expression  (35)
+
+	PLUS  shift 47
+	MINUS  shift 48
+	MULT  shift 49
+	DIV  shift 50
+	MOD  shift 51
+	SI  shift 52
+	SS  shift 53
+	EI  shift 54
+	ES  shift 55
+	EQUAL  shift 56
+	NOTEQUAL  shift 57
+	.  error
+
+
+state 34
+	statement : IF condition . THEN opt_statements END  (11)
+	statement : IF condition . THEN opt_statements ELSE opt_statements END  (12)
+	statement : IF condition . THEN opt_statements ELSEIF condition THEN opt_statements END  (13)
+	statement : IF condition . THEN opt_statements ELSEIF condition THEN opt_statements ELSE opt_statements END  (14)
+
+	THEN  shift 58
+	.  error
+
+
+state 35
+	expression : signe .  (16)
+
+	.  reduce 16
+
+
+state 36
+	expression : operator .  (17)
+
+	.  reduce 17
+
+
+state 37
+	signe : raw_expression .  (24)
+
+	.  reduce 24
+
+
+state 38
+	statement : ID ASSIGN . expression  (10)
+
+	LBRACKET  shift 18
+	LPARENT  shift 27
+	PLUS  shift 28
+	MINUS  shift 29
+	ID  shift 30
+	INT  shift 31
+	.  error
+
+	cell  goto 32
+	expression  goto 59
+	signe  goto 35
+	operator  goto 36
+	raw_expression  goto 37
+
+
+state 39
+	program : INT DIMENSIONS OF config END opt_statements EOF .  (1)
+
+	.  reduce 1
+
+
+state 40
+	opt_statements : statement opt_statements .  (8)
+
+	.  reduce 8
+
+
+state 41
+	statement : cell ASSIGN . expression  (9)
+
+	LBRACKET  shift 18
+	LPARENT  shift 27
+	PLUS  shift 28
+	MINUS  shift 29
+	ID  shift 30
+	INT  shift 31
+	.  error
+
+	cell  goto 32
+	expression  goto 60
+	signe  goto 35
+	operator  goto 36
+	raw_expression  goto 37
+
+
+state 42
+	field : ID OF INT DOT_DOT INT .  (6)
+
+	.  reduce 6
+
+
+state 43
+	cell : LBRACKET INT COMMA . INT RBRACKET  (15)
+
+	INT  shift 61
+	.  error
+
+
+state 44
+	raw_expression : LPARENT expression . RPARENT  (30)
+	operator : expression . PLUS raw_expression  (31)
+	operator : expression . MINUS raw_expression  (32)
+	operator : expression . MULT raw_expression  (33)
+	operator : expression . DIV raw_expression  (34)
+	operator : expression . MOD raw_expression  (35)
+
+	RPARENT  shift 62
+	PLUS  shift 47
+	MINUS  shift 48
+	MULT  shift 49
+	DIV  shift 50
+	MOD  shift 51
+	.  error
+
+
+state 45
+	signe : PLUS raw_expression .  (26)
+
+	.  reduce 26
+
+
+state 46
+	signe : MINUS raw_expression .  (25)
+
+	.  reduce 25
+
+
+state 47
+	operator : expression PLUS . raw_expression  (31)
+
+	LBRACKET  shift 18
+	LPARENT  shift 27
+	ID  shift 30
+	INT  shift 31
+	.  error
+
+	cell  goto 32
+	raw_expression  goto 63
+
+
+state 48
+	operator : expression MINUS . raw_expression  (32)
+
+	LBRACKET  shift 18
+	LPARENT  shift 27
+	ID  shift 30
+	INT  shift 31
+	.  error
+
+	cell  goto 32
+	raw_expression  goto 64
+
+
+state 49
+	operator : expression MULT . raw_expression  (33)
+
+	LBRACKET  shift 18
+	LPARENT  shift 27
+	ID  shift 30
+	INT  shift 31
+	.  error
+
+	cell  goto 32
+	raw_expression  goto 65
+
+
+state 50
+	operator : expression DIV . raw_expression  (34)
+
+	LBRACKET  shift 18
+	LPARENT  shift 27
+	ID  shift 30
+	INT  shift 31
+	.  error
+
+	cell  goto 32
+	raw_expression  goto 66
+
+
+state 51
+	operator : expression MOD . raw_expression  (35)
+
+	LBRACKET  shift 18
+	LPARENT  shift 27
+	ID  shift 30
+	INT  shift 31
+	.  error
+
+	cell  goto 32
+	raw_expression  goto 67
+
+
+state 52
+	condition : expression SI . expression  (20)
+
+	LBRACKET  shift 18
+	LPARENT  shift 27
+	PLUS  shift 28
+	MINUS  shift 29
+	ID  shift 30
+	INT  shift 31
+	.  error
+
+	cell  goto 32
+	expression  goto 68
+	signe  goto 35
+	operator  goto 36
+	raw_expression  goto 37
+
+
+state 53
+	condition : expression SS . expression  (21)
+
+	LBRACKET  shift 18
+	LPARENT  shift 27
+	PLUS  shift 28
+	MINUS  shift 29
+	ID  shift 30
+	INT  shift 31
+	.  error
+
+	cell  goto 32
+	expression  goto 69
+	signe  goto 35
+	operator  goto 36
+	raw_expression  goto 37
+
+
+state 54
+	condition : expression EI . expression  (22)
+
+	LBRACKET  shift 18
+	LPARENT  shift 27
+	PLUS  shift 28
+	MINUS  shift 29
+	ID  shift 30
+	INT  shift 31
+	.  error
+
+	cell  goto 32
+	expression  goto 70
+	signe  goto 35
+	operator  goto 36
+	raw_expression  goto 37
+
+
+state 55
+	condition : expression ES . expression  (23)
+
+	LBRACKET  shift 18
+	LPARENT  shift 27
+	PLUS  shift 28
+	MINUS  shift 29
+	ID  shift 30
+	INT  shift 31
+	.  error
+
+	cell  goto 32
+	expression  goto 71
+	signe  goto 35
+	operator  goto 36
+	raw_expression  goto 37
+
+
+state 56
+	condition : expression EQUAL . expression  (18)
+
+	LBRACKET  shift 18
+	LPARENT  shift 27
+	PLUS  shift 28
+	MINUS  shift 29
+	ID  shift 30
+	INT  shift 31
+	.  error
+
+	cell  goto 32
+	expression  goto 72
+	signe  goto 35
+	operator  goto 36
+	raw_expression  goto 37
+
+
+state 57
+	condition : expression NOTEQUAL . expression  (19)
+
+	LBRACKET  shift 18
+	LPARENT  shift 27
+	PLUS  shift 28
+	MINUS  shift 29
+	ID  shift 30
+	INT  shift 31
+	.  error
+
+	cell  goto 32
+	expression  goto 73
+	signe  goto 35
+	operator  goto 36
+	raw_expression  goto 37
+
+
+state 58
+	statement : IF condition THEN . opt_statements END  (11)
+	statement : IF condition THEN . opt_statements ELSE opt_statements END  (12)
+	statement : IF condition THEN . opt_statements ELSEIF condition THEN opt_statements END  (13)
+	statement : IF condition THEN . opt_statements ELSEIF condition THEN opt_statements ELSE opt_statements END  (14)
+	opt_statements : .  (7)
+
+	LBRACKET  shift 18
+	IF  shift 19
+	ID  shift 20
+	END  reduce 7
+	ELSEIF  reduce 7
+	ELSE  reduce 7
+
+	opt_statements  goto 74
+	statement  goto 22
+	cell  goto 23
+
+
+state 59
+	statement : ID ASSIGN expression .  (10)
+	operator : expression . PLUS raw_expression  (31)
+	operator : expression . MINUS raw_expression  (32)
+	operator : expression . MULT raw_expression  (33)
+	operator : expression . DIV raw_expression  (34)
+	operator : expression . MOD raw_expression  (35)
+
+	PLUS  shift 47
+	MINUS  shift 48
+	MULT  shift 49
+	DIV  shift 50
+	MOD  shift 51
+	EOF  reduce 10
+	END  reduce 10
+	LBRACKET  reduce 10
+	IF  reduce 10
+	ELSEIF  reduce 10
+	ELSE  reduce 10
+	ID  reduce 10
+
+
+state 60
+	statement : cell ASSIGN expression .  (9)
+	operator : expression . PLUS raw_expression  (31)
+	operator : expression . MINUS raw_expression  (32)
+	operator : expression . MULT raw_expression  (33)
+	operator : expression . DIV raw_expression  (34)
+	operator : expression . MOD raw_expression  (35)
+
+	PLUS  shift 47
+	MINUS  shift 48
+	MULT  shift 49
+	DIV  shift 50
+	MOD  shift 51
+	EOF  reduce 9
+	END  reduce 9
+	LBRACKET  reduce 9
+	IF  reduce 9
+	ELSEIF  reduce 9
+	ELSE  reduce 9
+	ID  reduce 9
+
+
+state 61
+	cell : LBRACKET INT COMMA INT . RBRACKET  (15)
+
+	RBRACKET  shift 75
+	.  error
+
+
+state 62
+	raw_expression : LPARENT expression RPARENT .  (30)
+
+	.  reduce 30
+
+
+state 63
+	operator : expression PLUS raw_expression .  (31)
+
+	.  reduce 31
+
+
+state 64
+	operator : expression MINUS raw_expression .  (32)
+
+	.  reduce 32
+
+
+state 65
+	operator : expression MULT raw_expression .  (33)
+
+	.  reduce 33
+
+
+state 66
+	operator : expression DIV raw_expression .  (34)
+
+	.  reduce 34
+
+
+state 67
+	operator : expression MOD raw_expression .  (35)
+
+	.  reduce 35
+
+
+state 68
+	condition : expression SI expression .  (20)
+	operator : expression . PLUS raw_expression  (31)
+	operator : expression . MINUS raw_expression  (32)
+	operator : expression . MULT raw_expression  (33)
+	operator : expression . DIV raw_expression  (34)
+	operator : expression . MOD raw_expression  (35)
+
+	PLUS  shift 47
+	MINUS  shift 48
+	MULT  shift 49
+	DIV  shift 50
+	MOD  shift 51
+	THEN  reduce 20
+
+
+state 69
+	condition : expression SS expression .  (21)
+	operator : expression . PLUS raw_expression  (31)
+	operator : expression . MINUS raw_expression  (32)
+	operator : expression . MULT raw_expression  (33)
+	operator : expression . DIV raw_expression  (34)
+	operator : expression . MOD raw_expression  (35)
+
+	PLUS  shift 47
+	MINUS  shift 48
+	MULT  shift 49
+	DIV  shift 50
+	MOD  shift 51
+	THEN  reduce 21
+
+
+state 70
+	condition : expression EI expression .  (22)
+	operator : expression . PLUS raw_expression  (31)
+	operator : expression . MINUS raw_expression  (32)
+	operator : expression . MULT raw_expression  (33)
+	operator : expression . DIV raw_expression  (34)
+	operator : expression . MOD raw_expression  (35)
+
+	PLUS  shift 47
+	MINUS  shift 48
+	MULT  shift 49
+	DIV  shift 50
+	MOD  shift 51
+	THEN  reduce 22
+
+
+state 71
+	condition : expression ES expression .  (23)
+	operator : expression . PLUS raw_expression  (31)
+	operator : expression . MINUS raw_expression  (32)
+	operator : expression . MULT raw_expression  (33)
+	operator : expression . DIV raw_expression  (34)
+	operator : expression . MOD raw_expression  (35)
+
+	PLUS  shift 47
+	MINUS  shift 48
+	MULT  shift 49
+	DIV  shift 50
+	MOD  shift 51
+	THEN  reduce 23
+
+
+state 72
+	condition : expression EQUAL expression .  (18)
+	operator : expression . PLUS raw_expression  (31)
+	operator : expression . MINUS raw_expression  (32)
+	operator : expression . MULT raw_expression  (33)
+	operator : expression . DIV raw_expression  (34)
+	operator : expression . MOD raw_expression  (35)
+
+	PLUS  shift 47
+	MINUS  shift 48
+	MULT  shift 49
+	DIV  shift 50
+	MOD  shift 51
+	THEN  reduce 18
+
+
+state 73
+	condition : expression NOTEQUAL expression .  (19)
+	operator : expression . PLUS raw_expression  (31)
+	operator : expression . MINUS raw_expression  (32)
+	operator : expression . MULT raw_expression  (33)
+	operator : expression . DIV raw_expression  (34)
+	operator : expression . MOD raw_expression  (35)
+
+	PLUS  shift 47
+	MINUS  shift 48
+	MULT  shift 49
+	DIV  shift 50
+	MOD  shift 51
+	THEN  reduce 19
+
+
+state 74
+	statement : IF condition THEN opt_statements . END  (11)
+	statement : IF condition THEN opt_statements . ELSE opt_statements END  (12)
+	statement : IF condition THEN opt_statements . ELSEIF condition THEN opt_statements END  (13)
+	statement : IF condition THEN opt_statements . ELSEIF condition THEN opt_statements ELSE opt_statements END  (14)
+
+	END  shift 76
+	ELSEIF  shift 77
+	ELSE  shift 78
+	.  error
+
+
+state 75
+	cell : LBRACKET INT COMMA INT RBRACKET .  (15)
+
+	.  reduce 15
+
+
+state 76
+	statement : IF condition THEN opt_statements END .  (11)
+
+	.  reduce 11
+
+
+state 77
+	statement : IF condition THEN opt_statements ELSEIF . condition THEN opt_statements END  (13)
+	statement : IF condition THEN opt_statements ELSEIF . condition THEN opt_statements ELSE opt_statements END  (14)
+
+	LBRACKET  shift 18
+	LPARENT  shift 27
+	PLUS  shift 28
+	MINUS  shift 29
+	ID  shift 30
+	INT  shift 31
+	.  error
+
+	cell  goto 32
+	expression  goto 33
+	condition  goto 79
+	signe  goto 35
+	operator  goto 36
+	raw_expression  goto 37
+
+
+state 78
+	statement : IF condition THEN opt_statements ELSE . opt_statements END  (12)
+	opt_statements : .  (7)
+
+	LBRACKET  shift 18
+	IF  shift 19
+	ID  shift 20
+	END  reduce 7
+
+	opt_statements  goto 80
+	statement  goto 22
+	cell  goto 23
+
+
+state 79
+	statement : IF condition THEN opt_statements ELSEIF condition . THEN opt_statements END  (13)
+	statement : IF condition THEN opt_statements ELSEIF condition . THEN opt_statements ELSE opt_statements END  (14)
+
+	THEN  shift 81
+	.  error
+
+
+state 80
+	statement : IF condition THEN opt_statements ELSE opt_statements . END  (12)
+
+	END  shift 82
+	.  error
+
+
+state 81
+	statement : IF condition THEN opt_statements ELSEIF condition THEN . opt_statements END  (13)
+	statement : IF condition THEN opt_statements ELSEIF condition THEN . opt_statements ELSE opt_statements END  (14)
+	opt_statements : .  (7)
+
+	LBRACKET  shift 18
+	IF  shift 19
+	ID  shift 20
+	END  reduce 7
+	ELSE  reduce 7
+
+	opt_statements  goto 83
+	statement  goto 22
+	cell  goto 23
+
+
+state 82
+	statement : IF condition THEN opt_statements ELSE opt_statements END .  (12)
+
+	.  reduce 12
+
+
+state 83
+	statement : IF condition THEN opt_statements ELSEIF condition THEN opt_statements . END  (13)
+	statement : IF condition THEN opt_statements ELSEIF condition THEN opt_statements . ELSE opt_statements END  (14)
+
+	END  shift 84
+	ELSE  shift 85
+	.  error
+
+
+state 84
+	statement : IF condition THEN opt_statements ELSEIF condition THEN opt_statements END .  (13)
+
+	.  reduce 13
+
+
+state 85
+	statement : IF condition THEN opt_statements ELSEIF condition THEN opt_statements ELSE . opt_statements END  (14)
+	opt_statements : .  (7)
+
+	LBRACKET  shift 18
+	IF  shift 19
+	ID  shift 20
+	END  reduce 7
+
+	opt_statements  goto 86
+	statement  goto 22
+	cell  goto 23
+
+
+state 86
+	statement : IF condition THEN opt_statements ELSEIF condition THEN opt_statements ELSE opt_statements . END  (14)
+
+	END  shift 87
+	.  error
+
+
+state 87
+	statement : IF condition THEN opt_statements ELSEIF condition THEN opt_statements ELSE opt_statements END .  (14)
+
+	.  reduce 14
+
+
+32 terminals, 14 nonterminals
+37 grammar rules, 88 states

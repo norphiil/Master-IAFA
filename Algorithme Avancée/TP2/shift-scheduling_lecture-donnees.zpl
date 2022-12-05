@@ -1,4 +1,4 @@
-param fichier := "./shift-scheduling-5.zplread" ;
+param fichier := "./archive_1/shift-scheduling.zplread" ;
 do print fichier ;
 
 ### how to run the program
@@ -103,28 +103,43 @@ param prefOn[Personnes*Days*Services] :=
 # Variables
 
 var assigned[Personnes*Days*Services] binary ;
-var y[Days*Services] >= 0 ;
-var z[Days*Services] >= 0 ;
 
-minimize valeur: sum<d,s> in Days*Services: (y[d,s] + z[d,s]) ;
+var y[Days*Services] integer >= 0 ;
+var z[Days*Services] integer >= 0 ;
+
+# minimize valeur: sum<d,s> in Days*Services: (y[d,s] + z[d,s]) ;
+
+# Q5
+# minimize valeur : (
+#   sum <d,s> in Days*Services : (
+#     belowCoverPen[d,s] * z[d,s] + aboveCoverPen[d,s] * y[d,s]
+#   )
+# ) + (
+#   sum <p,d,s> in Personnes*Days*Services : (
+#     prefOff[p,d,s] * assigned[p,d,s] + prefOn[p,d,s] * (1-assigned[p,d,s])
+#   )
+# ) ;
+
 subto q1 :
-  forall<d, s> in Days*Services :
-    (sum <p> in Personnes :  assigned[p, d, s]) + y[d, s] -z[d, s] == requirement[d, s];
+ forall<d, s> in Days*Services :
+   (sum <p> in Personnes :  assigned[p, d, s]) - y[d, s] + z[d, s] == requirement[d, s];
 
+# personne ne peut faire plus d'un service par jours
 subto q2_1 :
   forall<p, d> in Personnes*Days :
     (sum <s> in Services :  assigned[p, d, s]) <= 1;
 
+# pour chaque personne p et chaque jour d, si dayOff[p, d] = 1 alors p ne doit être affectée à aucun service ce jour-là
 subto q2_2 :
   forall<p, d> in Personnes*Days :
-    if dayOff[p, d] == 1 then
-      (sum <s> in Services :  assigned[p, d, s]) == 0
-    end;
+      (sum <s> in Services :  assigned[p, d, s]) <= 1 - dayOff[p, d];
 
+# chaque personne p ne peut prendre plus de MaxShift[p; s] fois le service s sur la période
 subto q2_3 :
   forall<p, s> in Personnes*Services :
     (sum <d> in Days :  assigned[p, d, s]) <= MaxShift[p, s];
 
+# a durée totale de service (en minutes) de la personne p doit être dans l'intervalle [MinTotalMinutes[p]; MaxTotalMinutes[p]]
 subto q2_4_1:
   forall <p> in Personnes:
     (sum <s> in Services : sum <d> in Days : assigned[p,d,s]*duree[s]) <= MaxTotalMinutes[p];
@@ -133,48 +148,37 @@ subto q2_4_2:
   forall <p> in Personnes:
     (sum <s> in Services : sum <d> in Days : assigned[p,d,s]*duree[s]) >= MinTotalMinutes[p];
 
-subto q3_1:
+# Exprimer des contraintes linéaires pour que :
+# à aucun moment durant la période, le nombre de jours de service consécutifs pour la personne p ne dépasse MaxConsecutiveShifts[p] ;
+subto q3_1 :
   forall <p> in Personnes:
-    forall <d> in Days with d<(horizon-MaxConsecutiveShifts[p]) :
-      (sum <j> in { d..d+MaxConsecutiveShifts[p]} : sum <s> in Services : assigned[p,j,s]) <= MaxConsecutiveShifts[p];
+    forall <d> in Days:
+      (sum <s> in Services : assigned[p,d,s]) <= MaxConsecutiveShifts[p];
 
-subto q3_2:
-   forall <d> in Days with d<horizon-1:
-      forall <p> in Personnes:
-        forall <s1> in Services:
-          forall <s2> in Services:
-            (2-ForbiddenSeq[s1,s2]-assigned[p,d,s1]) >= assigned[p,d+1,s2];
-
-
-# Exprimer des contraintes conditionnelles pour que :
-# 1. à aucun moment durant la période il y ait une séquence de jours non travaillés par p qui fasse moins de MinConsecutiveDaysOff[p] jours ;
-# 2. à aucun moment durant la période, le nombre. de jours de service consécutifs pour la personne p ne soit inférieur à MinConsecutiveShifts[p].
-# Indication 1 : Pour contraindre qu'il n'y ait pas par exemple de séquence de repos de moins de 3 jours qui commence un certain jour d, on peut écrire vif assigned [p ,d -1 , s ] == 1 and assigned [p ,d , s ] == 0 then assigned [p , d +1 , s ] + assigned [p , d +2 , s ] == 0 end ;
-# Indication 2 : C'est plus facile de travailler avec, pour chaque personne p et chaque jour d, une variable booléenne wpd qui vaudra 1 si p travaille le jour d, 0 sinon, c'est-à-dire que wpd = 1 quand assigned[p; d; s] vaut 1 pour au moins l'un des services s. S'il y a trois services, on peut modéliser cela avec la double contrainte : wpd ≤ assigne[p; d; E] + assigne[p; d; D] + assigne[p; d; L] ≤ 3 * wpd or, de manière équivalente puisqu'on sait que personne ne peut effectuer plus d'un service par jour :
-# wpd = assigned[p; d; E] + assigned[p; d; D] + assigned[p; d; L]
-
-subto q4_1:
+# si p effectue le service s1 un certain jour d, et si ForbiddenSeq[s1; s2] = 1, alors p ne doit pas faire le service s2 le jour d + 1.
+subto q3_2 :
   forall <p> in Personnes:
-    forall <d> in Days with d<(horizon-MinConsecutiveDaysOff[p]) :
-      (sum <j> in { d..d+MinConsecutiveDaysOff[p]} : sum <s> in Services : assigned[p,j,s]) >= MinConsecutiveDaysOff[p];
+    forall <d> in Days with d < horizon-1:
+      forall <s1, s2> in Services*Services with ForbiddenSeq[s1,s2] == 1:
+        assigned[p,d,s1] + assigned[p,d+1,s2] <= 1;
 
-# On observe que les contraintes conditionnelles précédentes génèrent beaucoup de
-# nouvelles variables et de contraintes conditionnelles. Réexprimer directement les contraintes
-# ci-dessus à l'aide de contraintes linéaires, en observant par exemple que si, pour p, le nombre
-# minimum de jours consécutifs travaillés est 3, alors il suffit d'interdire les séquences de la forme
-# Off - On - Off, Off - On - On - Off.
-subto q4_2:
-  forall <p> in Personnes:
-    forall <d> in Days with d<horizon-1:
-      forall <s1> in Services:
-        forall <s2> in Services:
-          (2-ForbiddenSeq[s1,s2]-assigned[p,d,s1]) >= assigned[p,d+1,s2];
-# subto q4_2:
-#   forall <p> in Personnes:
-#     forall <d> in Days with d<(horizon-MinConsecutiveShifts[p]) :
-#       (sum <j> in { d..d+MinConsecutiveShifts[p]} : sum <s> in Services : assigned[p,j,s]) >= MinConsecutiveShifts[p];
+var w[Personnes*Days] binary;
 
-# Les instances ont aussi des paramètres qui pondèrent les écarts, en terme de nombre de personnels, par rapport aux nombres requis pour chaque service ; ainsi que des paramètres qui permettent de prendre en compte certaines préférences des personnels.
-subto q5_1:
-  forall <d,s> in Days*Services:
-    sum <p> in Personnes : assigned[p,d,s] <= requirement[d,s] + aboveCoverPen[d,s] ;
+## Exprimer des contraintes conditionnelles pour que :
+# à aucun moment durant la période il y ait une séquence de jours non travaillés par p qui fasse moins de MinConsecutiveDaysOff[p] jours.
+# subto q4_1 :
+#   forall <p> in Personnes :
+#     forall<d> in Days with (2 <= MinConsecutiveDaysOff[p]) and (d+MinConsecutiveDaysOff[p]-1 < horizon) :
+#       forall <l> in {2..MinConsecutiveDaysOff[p]} with d+l < horizon :
+#         vif w[p,d+1] == 0 and w[p,d] == 1 then
+#           w[p,d+l] == 0
+#         end ;
+#
+# # à aucun moment durant la période, le nombre. de jours de service consécutifs pour la personne p ne soit inférieur à MinConsecutiveShifts[p].
+# subto q4_2 :
+#   forall<p> in Personnes :
+#     forall<j> in {1..horizon-MinConsecutiveShifts[p]-1} with (2 <= MinConsecutiveShifts[p]) :
+#       vif w[p,j-1] == 0 and w[p,j] == 1 then
+#         sum<d> in {1 to MinConsecutiveShifts[p]-1} :
+#           (w[p,j+d]) >= MinConsecutiveShifts[p]-1
+#       end ;

@@ -1,0 +1,6 @@
+{
+  "ocaml.sandbox": {
+    "kind": "global"
+  },
+  "nuxt.isNuxtApp": false
+}
