@@ -14,14 +14,13 @@ Hypotheses R2 est la plus petite relation. R2 relation pivot et $|R2 \infty R1| 
    courant = {R2} \
    arbre = $\empty$ \
    succ = {R2 \* R1, R2 \* R3} \
-   succ = {R2 \* R1}
-   arbre = {R2 \* R1} \
-
+   succ = {R2 \* R1} \
+   arbre = {R2 \* R1}
 2. courant = {R2 \* R1} \
    arbre = $\empty$ \
    succ = {(R2 \* R1) \* R3} \
    succ = {(R2 \* R1) \* R3} \
-   arbre = {(R2 \* R1) \* R3} \
+   arbre = {(R2 \* R1) \* R3}
 3. courant = {(R2 \* R1) \* R3} \
    arbre = $\empty$ \
    courant est un arbre complet resultat = (R2 \* R1) \* R3
@@ -59,12 +58,12 @@ arbre = {R2}
    arbre = {R3} \
    sinon succ = {R1 \* R2} \
    succ = {R1 \* R2} \
-   arbre = {R3, R1 \* R2}
+   arbre = {R3, R1 \* R2} \
 5. courant = {R1 \* R2} \
    arbre = {R3} \
    sinon succ = {(R1 \* R2) \* R3} \
    succ = {(R1 \* R2) \* R3} \
-   arbre = {R3, (R1 \* R2) \* R3}
+   arbre = {R3, (R1 \* R2) \* R3} \
 6. courant = {(R1 \* R2) \* R3} \
    arbre = {R3} \
    courant = arbre complet => resultat = (R2 \* R1) \* R3 $\cup$ (R1 \* R2) \* R3
