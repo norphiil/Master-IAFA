@@ -1,6 +1,7 @@
 # Soutient 2nd session
 
 ## Minimisation des contraintes
+
 $
 Min(f(x, y))
 \\
@@ -34,6 +35,7 @@ det A = \begin{vmatrix} a_{11} & a_{12} & a_{13} \\ a_{21} & a_{22} & a_{23} \\ 
 \\
 = a_{11}a_{22}a_{33} + a_{12}a_{23}a_{31} + a_{13}a_{21}a_{32} - a_{13}a_{22}a_{31} - a_{12}a_{21}a_{33} - a_{11}a_{23}a_{32}
 $
+
 ## Qualification bayésienne :
 
 $
@@ -53,6 +55,7 @@ g(x) = log(P(x | w_i)P(w_i)) = log(P(x | w_i)) + log(P(w_i))
 $
 
 ## Moindre carrée :
+
 $
 Données ~: (0, 1)(1, 3)(2, 7)
 \\
@@ -68,7 +71,7 @@ f(1) = 3 ~?
 \\
 f(2) = 7 ~?
 \\
-2 ~- Version analytique ~:
+2 ~- Version ~analytique ~:
 \\
 S:(a, b) ~|-> (f(2) - 7)^2 + (f(1) - 3)^2 + (f(0) - 1)^2
 \\
