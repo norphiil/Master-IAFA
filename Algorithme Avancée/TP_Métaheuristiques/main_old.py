@@ -11,7 +11,7 @@ def new_random_x(size: int) -> list:
     return x
 
 
-# Q = [
+# Qgraphe12345 = [
 #     [-17, 10, 10, 10, 0, 20],
 #     [10, -18, 10, 10, 10, 20],
 #     [10, 10, -29, 10, 20, 20],
@@ -32,18 +32,22 @@ def readFile(filename: str) -> np.array:
         return np.array(matrix), p
 
 
-# Q, p = readFile('partition6.txt')
-Q, p = readFile('graphe12345.txt')
+Qpartition6, Ppartition6 = readFile('files/partition6.txt')
+Qgraphe12345, Pgraphe12345 = readFile('files/graphe12345.txt')
 
 
 # X = [1, 1, 0, 1, 0, 0]
-X = new_random_x(len(Q))
+X = new_random_x(len(Qgraphe12345))
 
 
 def ubqp(q: np.array, x: list) -> int:
-    return sum(q[i][j] * x[i] * x[j] for i in range(len(x)) for j in range(len(x)))
+    return sum(
+        q[i][j] * x[i] * x[j] for i in range(len(x)) for j in range(len(x))
+    )
 
-# Program a best_neighbor function that returns the best neighbor solution of X where a neighbor X ′ of X is a sequence of bits that differs from X by only one bit.
+# Program a best_neighbor function that returns the best
+# neighbor solution of X where a neighbor X ′ of X is a
+# sequence of bits that differs from X by only one bit.
 
 
 def best_neighbor(q: np.array, x: list) -> list:
@@ -60,7 +64,7 @@ def best_neighbor(q: np.array, x: list) -> list:
             best.append(x_prime)
     return best[np.random.randint(0, len(best))]
 
-# print(best_neighbor(Q, X))
+# print(best_neighbor(Qgraphe12345, X))
 
 
 def steepest_hill_climbing(q: np.array, x: list, max_depl: int) -> list:
@@ -86,7 +90,7 @@ def random_restart_hill_climbing(q: np.array, x: list, max_depl: int, max_restar
     nb_restart = 0
     while nb_restart < max_restart:
         s_prime, s_prime_score = steepest_hill_climbing(
-            q, new_random_x(len(Q)), max_depl)
+            q, new_random_x(len(Qgraphe12345)), max_depl)
         if s_prime_score < s_score_best:
             s_best = s_prime
             s_score_best = s_prime_score
@@ -94,7 +98,7 @@ def random_restart_hill_climbing(q: np.array, x: list, max_depl: int, max_restar
     return s_best, s_score_best
 
 
-# print(random_restart_hill_climbing(Q, X, 100, 100))
+# print(random_restart_hill_climbing(Qgraphe12345, X, 100, 100))
 
 
 def tabu_search(q: np.array, x: list, max_depl: int, max_tabu: int) -> list:
@@ -120,5 +124,5 @@ def tabu_search(q: np.array, x: list, max_depl: int, max_tabu: int) -> list:
     return msol, ubqp(q, msol)
 
 
-# Q1.7
-print(tabu_search(Q, X, 100, 1000))
+# Q1.7 Programmer la méthode tabou en essayant différentes tailles pour la liste Tabou.
+print(tabu_search(Qgraphe12345, X, 100, 1000))

@@ -1,4 +1,4 @@
-param fichier := "./archive_1/shift-scheduling.zplread" ;
+param fichier := "./archive_5/shift-scheduling.zplread" ;
 do print fichier ;
 
 ### how to run the program

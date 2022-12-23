@@ -1,5 +1,4 @@
-param fichier := "./archive/bin-packing-difficile-hard.bpa" ;
-
+param fichier := "./archive_5/bin-packing-difficile-hard.bpa" ;
 param C := read fichier as "1n" skip 1 use 1;
 param Size := read fichier as "2n" skip 1 use 1;
 set Objets := {1 to Size by 1} ;
