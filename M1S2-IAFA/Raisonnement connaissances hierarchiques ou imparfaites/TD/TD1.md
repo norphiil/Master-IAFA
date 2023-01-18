@@ -136,3 +136,31 @@ $$
     U_{pess}(A_{pp}) = 0.75 * 200 + 0.25 * min(300, 30) = 165 \\
     U_{pess}(Villas) = 0.75 * 0 + 0.25 * min(220, 400)  = 55 \\
 $$
+
+## 4. Possibilités.
+
+N(A) > 0 => $\pi(M) = 1$ \
+$\pi(A) < 1$ => N(A) = 0
+
+$\pi$ normalisés -> $\exists s^*, +q ~\pi(sp^*) = 1$
+
+cas 1 :
+
+$$
+ s^* \in A \\
+ \pi (A) = sup_{s \in A} ~ \pi (s) = \pi (s^*) = 1 \\
+ prouvé
+$$
+
+cas 2 :
+
+$$
+ s^* \in \bar{A} \\
+ \pi (\bar{A}) = sup_{s \in \bar{A}} ~ \pi (s) = 1 \\
+ N(A) = 1 - \pi (\bar{A}) = 1 - 1 = 0
+$$
+
+$$
+    \pi (d \leq 4) = 1
+    N(d \leq 4) = 0
+$$
