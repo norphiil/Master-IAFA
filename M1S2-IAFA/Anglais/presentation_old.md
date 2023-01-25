@@ -20,7 +20,7 @@ En somme, la question de l'explainabilité de l'IA est un défi important, qui d
 
 ---
 
-## Quelques idées sur la façon dont vous pourriez illustrer chacun des chapitres de votre présentation sur l'explainabilité de l'IA et ses implications pour la confiance à l'aide de diapositives PowerPoint:
+## Sommaire du powerpoint:
 
 - Introduction à l'explainabilité de l'IA:
 
