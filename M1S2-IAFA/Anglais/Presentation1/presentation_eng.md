@@ -5,7 +5,7 @@
 - Recommender systems are increasingly used in businesses and digital applications
 - There are several techniques used in recommender systems, such as content analysis, collaborative filtering and machine learning.
 - There are several challenges and opportunities associated with using AI in recommender systems. One of the most important challenges is privacy.
-- Recommending can also cause problems such as the filter bubble, which is a phenomenon that occurs when the recommendation algorithms create an environment where users only see a limited selection of content, often related to their interests or preferences.
+- Recommending can also cause problems such as the filter bubble, which is a phenomenon that occurs when the recommendation algorithms create an environment where users only see a limited selection of content, often related to their interests or prefxerences.
 - In conclusion, AI is playing an increasingly important role in recommender systems.
 - Thanks for listening, if you have any questions please feel free to ask.
 
