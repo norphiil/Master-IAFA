@@ -70,12 +70,23 @@ On considére 2 repére R(à, x, y, z) Fixe et R'(a', x', y', z') Mobile.
 
 ### 1) Rotation Seule.
 - O = O' (pas de translation)
-- x', y', z' ont changé d'orientation / x, y, z : Axes $\neq$ 
+- x', y', z' ont changé d'orientation / x, y, z : Axes $\neq$
 
-=> La rotation effectuée est définie par la matrice de rotation R = $
-\begin{pmatrix}
-r_{11} & r_{12} & r_{13} \\
-r_{21} & r_{22} & r_{23} \\
-r_{31} & r_{32} & r_{33}
-\end{pmatrix}
-$
+=> La rotation effectuée est définie par la matrice de rotation R = $\begin{pmatrix}
+    r_{11} & r_{12} & r_{13} \\
+    r_{21} & r_{22} & r_{23} \\
+    r_{31} & r_{32} & r_{33}
+  \end{pmatrix}$
+
+## Exercice :
+
+### (I) 3 Rotation de base
+  -> Rotation autour de x d'un angle $\theta$ \
+  -> Rotation autour de y d'un angle $\theta$ \
+  -> Rotation autour de z d'un angle $\theta$
+
+#### 1) Rotation autour de x \
+  $R_0 = (0_0, x_0, y_0, z_0) Fixe$ \
+  $R_1 = (0_1, x_1, y_1, z_1) Mobile$ \
+  Avec 0_1 = 0_0 \
+  
