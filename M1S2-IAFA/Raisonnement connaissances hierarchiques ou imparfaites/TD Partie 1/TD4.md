@@ -148,10 +148,12 @@ L'incertitude des connaissances est exprimée comme suit :
     $\neg$CHAUD 0.5
 
 2) Déterminer le degré d'inconsistance de BP. \
-    
+
 
 3) Que peut-on conclure et avec quelle certitude parmi les littéraux suivants : sonne, $\neg$sonne,
 CHAUD, $\neg$CHAUD ? \
 
 
 4) Une source confirme l'hypothèse C6 dont la certitude augmente au moins au degré 0.8. Que peut-on maintenant conclure ? \
+
+
