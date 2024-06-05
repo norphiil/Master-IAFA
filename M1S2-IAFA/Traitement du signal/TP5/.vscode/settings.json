@@ -1,0 +1,6 @@
+{
+    "nuxt.isNuxtApp": false,
+    "python.linting.flake8Args": [
+        "--ignore=E501, E402,F841,F401,E302,E305",
+    ],
+}

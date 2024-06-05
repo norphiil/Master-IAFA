@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html><head><meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Introduction au traitement du signal, aux signaux sonores et aux images - TP n¿1</title></head><body>
+
+<h1><center>Introduction au traitement du signal, aux signaux sonores et aux images<br>
+TP n°2 : Décomposition d'une image en fréquences</center></h1>
+
+<b>Conseil</b> : Essayez de faire vos algorithmes pour que cela puisse fonctionner sur n'importe quelle taille d'image.
+
+<h2>I. Image et domaine spectral</h2>
+<ul>
+<li>Lisez et affichez l'image ci-dessous.<br><br>
+<img alt="Image de Lena" src="assets/lena.jpg"><br><br></li>
+
+<li>Calculez la représentation fréquentielle de l'image ci-dessous, en utilisant la transformée bidimensionnelle discrète de Fourier : 
+<code>numpy.fft.fft2</code><br><br>
+<b>Attention</b> : le résultat est une matrice complexe de même dimension que la matrice de départ !<br>
+Pour visualiser cette matrice de coefficients complexes, il vous faut calculer le module, puis afficher le résultat suivant une échelle logarithmique des intensités.</li><br>
+</ul>
+
+
+<h2><b>II. Localisation des hautes et des basses fréquences</b></h2>
+
+<b>Attention</b> : la représentation de Python n'est pas la représentation conventionnelle !<br><br>
+
+<b>Méthode</b> : suppression de zones fréquentielles de l'image afin de situer les hautes et les basses fréquences.<br><br>
+
+Pour cela, des coefficients complexes de la représentation fréquentielle (coefficients du spectre), situés dans une zone rectangulaire (ou circulaire) seront remplacés par des 0.<br><br>
+
+Dans les 2 exemples ci-dessous, 25% des coefficients ont été supprimés.<br><br>
+
+<table style="width: 100%; text-align: left;" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;"><img alt="suppression des coefficients au centre" src="assets/tp3_1.jpg">
+      </td>
+<td style="vertical-align: top;"><img alt="suppression des coefficients sur le bord" src="assets/tp3_2.jpg">
+      </td>
+   </tr>
+  </tbody>
+</table>
+
+
+<ul>
+<li>Afin de mesurer l'impact de ce traitement, effectuez la transformée de Fourier inverse (cf. <code>numpy.fft.ifft2</code>) et affichez l'image.<br><br></li>
+
+<li>Alors ? Où se situent les hautes et les basses fréquences ?<br><br></li>
+
+<li>A partir de quel pourcentage de coefficients complexes supprimés en basses fréquences, l'image n'est plus reconnaissable ?<br><br></li>
+
+<li>Proposez une configuration qui permette de ne garder que les contours de l'image.</li><br>
+</ul>
+
+
+<h2><b>III. Réduction du bruit dans une image</b></h2>
+
+<ul>
+<li>Nous allons chercher à débruiter l'image ci-dessous (celà correspond à un bruit de type "poivre-et-sel" correspondant à 5% des pixels).<br><br></li>
+<img alt="Lena avec bruit poivre et sel" src="assets/img_b.jpg"><br><br>
+
+<li>Réduisez ce bruit en utilisant le spectre de Fourier.<br><br></li>
+
+<li>Comparez ce filtrage avec l'application sur l'image bruitée d'un filtre médian 3x3. Pour simplifier votre algorithme, vous pourrez utiliser les commandes <code>numpy.ravel</code> et <code>numpy.sort</code>.</li><br><br>
+</ul>
+
+</body>
+</html>

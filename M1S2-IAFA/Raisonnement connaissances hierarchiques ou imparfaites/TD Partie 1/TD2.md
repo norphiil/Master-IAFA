@@ -6,17 +6,17 @@
 
 #### 1) Montrer par une preuve sémantique que la déduction suivante est valide (vous pouvez utiliser un tableau pour lister les interprétations). $h, h \to (p \vee q), p \to c, q \to c \models c$
 
-|  h  |  p  |  q  |  c  |  h  | $h \to (p \vee q)$ | $p \to c$ | $q \to c$ |  A  |  c  |
-| :-: | :-: | :-: | :-: | :-: | :----------------: | :-------: | :-------: | :-: | :-: |
-|  V  |  V  |  V  |  V  |  V  |         V          |     V     |     V     |  V  |  V  |
-|  V  |  V  |  V  |  F  |  V  |         V          |     F     |     F     |  F  |  F  |
-|  V  |  V  |  F  |  V  |  V  |         V          |     V     |     V     |  V  |  V  |
-|  V  |  V  |  F  |  F  |  V  |         V          |     F     |     V     |  F  |  F  |
-|  V  |  F  |  V  |  V  |  V  |         V          |     V     |     V     |  V  |  V  |
-|  V  |  F  |  V  |  F  |  V  |         V          |     V     |     F     |  F  |  F  |
-|  V  |  F  |  F  |  V  |  V  |         F          |     V     |     V     |  F  |  F  |
-|  V  |  F  |  F  |  F  |  V  |         F          |     V     |     V     |  F  |  F  |
-|  F  |  V  |  V  |  V  |  F  |         V          |     V     |     V     |  F  |  F  |
+|   h   |   p   |   q   |   c   | $h \to (p \vee q)$ | $p \to c$ | $q \to c$ |   A   |   c   |
+| :---: | :---: | :---: | :---: | :----------------: | :-------: | :-------: | :---: | :---: |
+|   V   |   V   |   V   |   V   |         V          |     V     |     V     |   V   |   V   |
+|   V   |   V   |   V   |   F   |         V          |     F     |     F     |   F   |   F   |
+|   V   |   V   |   F   |   V   |         V          |     V     |     V     |   V   |   V   |
+|   V   |   V   |   F   |   F   |         V          |     F     |     V     |   F   |   F   |
+|   V   |   F   |   V   |   V   |         V          |     V     |     V     |   V   |   V   |
+|   V   |   F   |   V   |   F   |         V          |     V     |     F     |   F   |   F   |
+|   V   |   F   |   F   |   V   |         F          |     V     |     V     |   F   |   F   |
+|   V   |   F   |   F   |   F   |         F          |     V     |     V     |   F   |   F   |
+|   F   |   V   |   V   |   V   |         V          |     V     |     V     |   F   |   F   |
 
 #### 2) Même question mais avec une preuve syntaxique.
 
@@ -43,12 +43,12 @@ $A, \neg c \models \perp \iff A \models c$
 2 variable propositionnelles p et q
 4 interprétations
 
-|  p  |  q  | $\neg p$ | $\varphi$ | $\varphi$ |
-| :-: | :-: | :------: | :-------: | :-------: |
-|  V  |  V  |    F     |     V     |     F     |
-|  V  |  F  |    F     |     V     |     V     |
-|  F  |  V  |    V     |     V     |     F     |
-|  F  |  F  |    V     |     V     |     V     |
+|   p   |   q   | $\neg p$ | $\varphi$ | $\varphi$ |
+| :---: | :---: | :------: | :-------: | :-------: |
+|   V   |   V   |    F     |     V     |     F     |
+|   V   |   F   |    F     |     V     |     V     |
+|   F   |   V   |    V     |     V     |     F     |
+|   F   |   F   |    V     |     V     |     V     |
 
 $\varphi$ est satisfiable et non valide.
 
@@ -56,7 +56,7 @@ $\varphi$ est satisfiable et non valide.
 
 $\varphi = \neg (p \to q) \vee ((\neg p \to q) \to \neg q)$ \
 $\varphi = (p \wedge \neg q) \vee (\neg (\neg p \to q) \vee \neg q)$ \
-$\varphi = (p \wedge \neg q) \vee (\neg p \wedge \neg q) \vee \neg q$ \
+$\varphi = (p \wedge \neg q) \vee (\neg p \wedge \neg q) \vee \neg q$
 
 ### B) Logique des prédicats
 

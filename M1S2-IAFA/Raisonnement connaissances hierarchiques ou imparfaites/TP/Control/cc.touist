@@ -1,0 +1,17 @@
+
+citron(c)
+jaune(b)
+citronvert(a)
+
+bigand $x in [a,b,c]:
+  (citronvert($x) => citron($x))
+end
+
+bigand $x in [a,b,c]:
+  (citron($x) and not anormal($x) => jaune($x))
+end
+
+
+bigand $x in [a,b,c]:
+  anormal($x) => jaune($x)
+end

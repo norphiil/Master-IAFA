@@ -2,7 +2,7 @@
 
 ## 1. Des paris "à 20 balles"
 
-Une urne contient 20 balles. Les balles sont verte (v), bleues (b) ou rouges (r) et portent des numeris différents (elles sont numeritées de 1 à 20).
+Une urne contient 20 balles. Les balles sont verte (v), bleues (b) ou rouges (r) et portent des numeros différents (elles sont numeritées de 1 à 20).
 
 On propose à un parieur les paris suivants sur la couleur et le numéro de la balle qui va étre tirée:
 
@@ -24,8 +24,7 @@ Soit:
 
 ### 1.1. Calculer les valeurs de l'espérance et de l'incertitude de chaque paris.
 
-F = {P, P(R) = 0.2 et P(B) = $\frac{1}{2}$} \
- = {P, P(B, p) + P(B, i) = 0.2 et P(B, p) + P(R, p) = $\frac{1}{2}$}
+F = {P, P(B, p) + P(B, i) = 0.2 et P(B, p) + P(R, p) = $\frac{1}{2}$}
 
 u(x) = x \
 UE(Paris A) = $inf_{P \in F}$ P(R, i) \* 10 + P(R, p) \* 10 + P(B, p) \* 0 + P(B, i) \* 0 + P(V, p) \* 0 + P(V, i) \* 0 \

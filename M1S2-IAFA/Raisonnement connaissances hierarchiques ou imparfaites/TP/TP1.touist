@@ -1,0 +1,96 @@
+
+;;p
+;;p => o
+;;p => not v
+;;o => v
+;;o => a
+;;a => v
+
+;; ssenario 1 : 12456 -> not o, not a, not p, not v
+;; ssenario 1 : 1235 -> not a, not p, not o
+;; ssenario 1 : 1236 -> not o, not p
+
+;;p(a) or p(b)
+;;p(c) or p(e)
+;;abnormal(c)
+;;bigand $i in [a,b,c,e]: 
+;;	(p($i) and not abnormal($i)) => q($i) 
+;;end
+
+;;not (q(a) or q(b)) ->  ca marche du coup ca n'infaire pas
+
+;;bigand $i in [a,b,e]: 
+;;	not abnormal($i)
+;;end
+
+;; not (q(a) or q(b))
+;; Ca ne marche pas du coup ca infere
+
+;; STA and BVU and FAI 		;; 1
+;; STA => not ANC 			;; 0.9
+;; BN and ANC => AUG 		;; 0.9
+;; FAI => AUG 				;; 0.9
+;; BN and STA => not AUG		;; 0.8
+;; STA and BVU => BN		;; 0.6
+;; BN and FAI => AUG		;; 0.4
+
+;; 2)
+;; si on enleve 0.4 ca marche pas
+;; si on enleve 0.4 et 0.6 ca marche du coup 
+;; ca veux dire que le degrai de certitude
+;; maximal est 0.6
+
+;; not STA => AUG
+;; un employe peut comper sur une augmentationa 0.6 de degrai de certitude
+
+A or B or C 					;; 0.8
+(A and B and D) => not CALME		;; 0.6
+not (A and B and E) => EFFICACE	;; 0.5
+RETARD => not CALME				;; 0.5
+D => C 						;; 0.4
+B => RETARD 					;; 0.3
+RETARD => not C				;; 0.3
+(B and E) => EFFICACE			;; 0.5
+B							;; 0.2
+
+not ( B or D) 
+;; le degrai de certitude est >= a 0.2
+;; B and D
+;; le degrai de certitude est >= 0.3
+
+;;not (B and A and E)
+;; le degrai de certitude est >= a 0.2
+
+
+
+
+
+;; Controle TouISt
+
+;; On considère les connaissances suivantes à exprimer en logique possibiliste
+
+;;     on pense qu'on a un citron dans notre panier avec une certitude d'au moins 0.7
+;;     on sait qu'un citron-vert est un citron et n'est pas jaune avec une certitude d'au moins 0.8
+;;     on pense qu'en général un citron est jaune avec une certitude d'au moins 0.6
+;;     on pense qu'en général un citron est acide avec une certitude d'au moins 0.6
+;;     on est quasiment certain que le citron est un fruit avec une certitude d'au moins 0.9
+;;     on pense qu'un fruit jaune est en général sucré avec une certitude d'au moins 0.5
+;;     on est assez certain qu'etre sucré c'est la même chose que ne pas être acide avec une certitude d'au moins 0.8
+
+;; On rappelle qu'en logique possibiliste, on manipule des paires (φ,α) qui sont interprétées par N(φ)≥α.
+
+;; Traduisez cette base en logique possibiliste soit BP, écrivez-là dans TouIST en mettant les poids des formules en commentaire. Vous utiliserez uniquement les symboles propositionnels suivants citronvert, citron, jaune, acide, fruit, sucre.
+
+fruit and jaune => sucre ;; 0.5
+citron => jaune ;; 0.6
+citron => acide ;; 0.6
+citron ;; 0.7
+sucre => not acide ;; 0.8
+citronvert => citron and not jaune ;; 0.8
+citron => fruit ;; 0.9
+
+;; Quel est le degré d'inconsistance de la base BP ?
+;; 0.7
+
+;; On apprend que c’est un "citron-vert" avec une certitude de 1. Quel est le degré d’inconsistance de la base BP’=BP à laquelle on a ajouté (citronvert,1) ?
+;; 0.8

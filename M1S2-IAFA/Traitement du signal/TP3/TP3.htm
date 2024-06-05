@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html><head><meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Introduction au traitement du signal, aux signaux sonores et aux images - TP n°3</title></head><body>
+
+<h1><center>Introduction au traitement du signal, aux signaux sonores et aux images<br>
+TP n°3 : Filtres et convolution</center></h1><br><br><br>
+
+<table cellspacing=2 cellpadding=2 width="100%">
+  <tbody>
+  <tr>
+    <td valign=top>
+      <img alt="Image de Lena" src="lena.jpg"><br></td>
+    <td valign=top>
+      <table cellspacing=2 cellpadding=2>
+        <tbody>
+        <tr><br><br><br><br><br><br>
+          <td valign=top>Filtre passe-bas 3x3 binômial : &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            <div align=right>1/16 * <br></div></td>
+          <td valign=top><br>
+            <table cellspacing=2 cellpadding=2 border=1>
+              <tbody>
+                <tr><td valign=top>1<br></td><td valign=top>2<br></td><td valign=top>1<br></td></tr>
+                <tr><td valign=top>2<br></td><td valign=top>4<br></td><td valign=top>2<br></td></tr>
+                <tr><td valign=top>1<br></td><td valign=top>2<br></td><td valign=top>1<br></td></tr>
+              </tbody>
+            </table><br>
+          </td>
+          <td valign=top>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br></td>
+          <td valign=top>Filtre passe-bas 5x5 binômial : &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            <div align=right>1/176 * <br></div></td>
+          <td valign=top><br>
+            <table cellspacing=2 cellpadding=2 border=1>
+              <tbody>
+              <tr><td valign=top>1<br></td><TD vAlign=top>4<BR></TD><TD vAlign=top>6<BR></TD><TD vAlign=top>4<BR></TD><TD vAlign=top>1<BR></TD></TR>
+              <TR><TD vAlign=top>4<BR></TD><TD vAlign=top>8<BR></TD><TD vAlign=top>14<BR></TD><TD vAlign=top>8<BR></TD><TD vAlign=top>4<BR></TD></TR>
+              <TR><TD vAlign=top>6<BR></TD><TD vAlign=top>14<BR></TD><TD vAlign=top>28<BR></TD><TD vAlign=top>14<BR></TD><TD vAlign=top>6<BR></TD></TR>
+              <TR><TD vAlign=top>4<BR></TD><TD vAlign=top>8<BR></TD><TD vAlign=top>14<BR></TD><TD vAlign=top>8<BR></TD><TD vAlign=top>4<BR></TD></TR>
+              <TR><TD vAlign=top>1<BR></TD><TD vAlign=top>4<BR></TD><TD vAlign=top>6<BR></TD><TD vAlign=top>4<BR></TD><TD vAlign=top>1<BR></TD></TR>
+              </TBODY>
+            </TABLE><BR>
+          </TD>
+        </TR>
+        <TR>
+          <TD vAlign=top>Filtre passe-haut PIKS 3x3 : &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            <DIV align=right>1/1 * <BR></DIV></TD>
+          <TD vAlign=top><BR>
+            <TABLE cellSpacing=2 cellPadding=2 border=1>
+              <TBODY>
+              <TR><TD vAlign=top>-1<BR></TD><TD vAlign=top>-1<BR></TD><TD vAlign=top>-1<BR></TD></TR>
+              <TR><TD vAlign=top>-1<BR></TD><TD vAlign=top>9<BR></TD><TD vAlign=top>-1<BR></TD></TR>
+              <TR><TD vAlign=top>-1<BR></TD><TD vAlign=top>-1<BR></TD><TD vAlign=top>-1<BR></TD></TR>
+              </TBODY>
+            </TABLE><BR>
+          </TD>
+          <TD vAlign=top><BR></TD>
+          <TD vAlign=top>Filtre passe-haut 5x5 (sharpening) : &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            <DIV align=right>1/16 * <BR></DIV></TD>
+          <TD vAlign=top><BR>
+            <TABLE cellSpacing=2 cellPadding=2 border=1>
+              <TBODY>
+              <TR><TD vAlign=top>-1<BR></TD><TD vAlign=top>-1<BR></TD><TD vAlign=top>-1<BR></TD><TD vAlign=top>-1<BR></TD><TD vAlign=top>-1<BR></TD></TR>
+              <TR><TD vAlign=top>-1<BR></TD><TD vAlign=top>0<BR></TD><TD vAlign=top>0<BR></TD><TD vAlign=top>0<BR></TD><TD vAlign=top>-1<BR></TD></TR>
+              <TR><TD vAlign=top>-1<BR></TD><TD vAlign=top>0<BR></TD><TD vAlign=top>32<BR></TD><TD vAlign=top>0<BR></TD><TD vAlign=top>-1<BR></TD></TR>
+              <TR><TD vAlign=top>-1<BR></TD><TD vAlign=top>0<BR></TD><TD vAlign=top>0<BR></TD><TD vAlign=top>0<BR></TD><TD vAlign=top>-1<BR></TD></TR>
+              <TR><TD vAlign=top>-1<BR></TD><TD vAlign=top>-1<BR></TD><TD vAlign=top>-1<BR></TD><TD vAlign=top>-1<BR></TD><TD vAlign=top>-1<BR></TD></TR>
+              </TBODY>
+            </TABLE><BR>
+          </TD>
+        </TR>
+        </TBODY>
+      </TABLE><BR><BR>
+    </TD>
+  </TR>
+  </TBODY>
+</TABLE>
+
+Récupérez l'image ci-dessus : nous allons lui appliquer différents filtres.<br><br>
+
+
+
+<h2>I. Filtre passe-bas et convolution</h2>
+
+<ul>
+	<li>Ecrire une fonction <code>convolution</code> qui effectue une convolution d'une image par un filtre linéaire.<br><br></li>
+	<li>Tester votre fonction sur l'image de Léna avec le filtre passe-bas 3x3 binômial.<br><br></li>
+	<li>Vérifier que votre fonction fonctionne également avec le filtre passe-bas 5x5 binômial.<br></li>
+</ul>
+
+<b>Remarque</b> : comparez vos résultats à ceux obtenus avec la fonction <code>scipy.signal.convolve2d</code> 
+<br><br>
+
+
+
+<h2>II. Filtre passe-haut et convolution</h2>
+
+<ul>
+  <li>Effectuez le même traitement (en utilisant <code>scipy.signal.convolve2d</code> si vous le souhaitez) avec les 2 filtres passe-haut.<br><br></li>
+  <li>Commentez les résultats en comparant les filtrages passe-haut et passe-bas.<br><br></li>
+</ul>
+
+
+
+<h2>III. Représentation fréquentielle (si le TP2 est terminé...)</h2>
+
+<ul>
+  <li>Calculer la représentation fréquentielle de l'image de départ (cf. TP précédent).<br><br></li>
+  <li>Calculer la représentation fréquentielle de la même image après convolution par un filtre passe-bas 5x5.<br><br></li>
+  <li>Vérifier la position des basses fréquences et des hautes fréquences sur la représentation fréquentielle.<br><br></li>
+  <li>Ecrire une fonction <code>eqm</code> qui calcule l'erreur quadratique moyenne entre 2 images.<br><br></li>
+  <li>En déduire lesquelles des hautes ou des basses fréquences ont un rôle prépondérant sur l'erreur quadratique moyenne (et donc sur le contenu de l'image).<br><br></li>
+</ul>
+
+
+</body>
+</html>

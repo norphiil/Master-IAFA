@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html><head><meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Introduction au traitement du signal, aux signaux sonores et aux images - TP n°1</title></head><body>
+
+<h1><center>Introduction au traitement du signal, aux signaux sonores et aux images<br>
+TP n°1</center></h1>
+
+<h2>I. Manipulation de fichiers numériques</h2>
+<ol>
+	<li><h3>Signal audio</h3>
+		<span style="font-family: Courier New,Courier,monospace;">
+			import scipy.io.wavfile as wav <br>
+			fs, signal = wav.read('diner.wav')<br>
+		</span><br>    
+		<ul>
+      			<li>Chargez le signal et précisez la valeur de fréquence d'échantillonnage,</li>
+			<li>Transformez les données d'entiers à réels flottants (sachant que la quantification est sur 16 bits),</li>
+			<li>Calculez la durée du fichier,</li>
+			<li>Affichez graphiquement le signal, avec l'axe des abscisses en secondes,</li>
+			<li>Affichez les 10 premières valeurs du signal qui sont différentes de 0.</li><br>
+    		</ul>
+  	</li>
+  	<li><h3>Image</h3>
+		<span style="font-family: Courier New,Courier,monospace;">
+			import matplotlib.pyplot as plt<br>
+			img = plt.imread('photo.jpg')<br>
+		</span><br>
+		<ul>
+      			<li>Chargez le signal et précisez les paramètres de l'image (taille, contenu),</li>
+			<li>Affichez l'image,</li>
+			<li>Affichez les intensités en RGB du premier pixel de l'image.</li><br>
+    		</ul>
+  	</li>
+</ol>
+
+
+<h2>II. Quantification, échantillonnage</h2>
+<ul>
+	<li>Ecrivez une fonction qui permette de sous-quantifier un fichier audio. Testez-la avec une quantification de 12, 8, 4 et 2 bits. Que pensez-vous de la qualité du son résultant ?<br>
+	Remarque : utilisez <span style="font-family: Courier New,Courier,monospace;">wav.write</span> pour enregistrer le résultat dans un fichier afin de l'écouter.</li><br>
+  	<li>Ecrivez une fonction qui permette de sous-échantillonner un fichier audio (codé en entiers ou nombres flottants). Testez-la avec un sous-échantillonnage x2, x4 et x8. Que remarquez-vous ?</li><br>
+	<li>Ecrivez une fonction qui permette la sous-quantification d'une image en gardant les n bits de poids fort (les autres sont mis à 0). Testez-la avec 2 bits et 3 bits. Que remarquez-vous ?<br>
+	Remarque : utilisez <span style="font-family: Courier New,Courier,monospace;">numpy.bitwise_and</span> pour accéder à la valeur d'un bit.</li>
+</ul>
+</body>
+</html>

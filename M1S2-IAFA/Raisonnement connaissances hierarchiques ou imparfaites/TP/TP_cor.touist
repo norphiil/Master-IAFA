@@ -1,0 +1,115 @@
+;; INCONSISTANCE
+p  ;;1
+p => o;;2
+p => not v;;  3
+;;o => v ;; 4
+;;o => a ;; 5
+a => v ;; 6
+;; 3 scenari (sous-bases maximales consistantes)
+;; 12456
+;; 1236 
+;; 1235
+;; p, o, consequences fortes (inferable dans tout scenario)
+;; a et v non
+
+;; CWA et DCA
+p(a) or p(b)
+p(c) or p(e)
+abnormal(c)
+bigand $x in[a,b,c,e]:
+ p($x) and not abnormal($x) => q($x)
+end
+;; not q(a) and not q(b) satisfiable donc BC n'infere pas q(a) ou q(b)
+;; not abnormal(a) sat donc BC n'infere pas ab(a)
+;; idem not abnormal(b) 
+;; idem not abnormal(e)
+;; donc on ajoute a CWA:
+not abnormal(a)
+not abnormal(b)
+not abnormal(e)
+;;not q(a) and not q(b) unsat donc CWA(BC,abnormal) infere q(a) ou q(b)
+
+;; STAGIAIRE
+sta and fai and bvu ;; 1
+sta => not anc;; 0.9
+bn and anc => aug ;; 0.9
+fai => aug ;; 0.9
+bn and sta => not aug ;; 0.8
+sta and bvu => bn ;; 0.6
+bn and fai => aug ;; 0.4
+;; 2) on lance le solveur: UNSAT
+;; on commente  0.4 UNSAT
+;; on commente 0.6 SAT
+;; donc Incons(BC)=0.6
+;; 3) on ajoute (not aug, 1)
+not aug;; 1
+;; on trouve unsat 
+;; degré d inconsistance de la nouvelle base
+;; il faut aller jusqu'à supprimer les formules 
+;; de degré 0.9
+;; donc Incons(K')=0.9
+;; donc N(aug) >= 0.9
+;; si on ajoute aug on trouve consistant
+;; donc pas d'nfo sur not aug
+
+;; REUNION
+B ;; 0.2
+B => ret ;; 0.3
+ret => not C;; 0.3
+D => C ;; 0.4
+ret => not clm ;; 0.5
+B and E => eff;; 0.5
+A and D => not clm ;; 0.6
+not A or not B or not C ;; 0.7
+A and B and E and not C => eff ;; 0.8
+A and B and D => not clm ;; 0.9
+;; 3. on ajoute donc l'opposé avec 1
+;; B and D ;; 1 contraire de not (B and D)
+;; on obtient incons
+;; si on supprime les formules 0.2 incons 0.3 cons
+;; degre incons est donc 0.3
+;; N(not(B and D)) >= 0.3
+;; donc 1-Pi(B and D) >=0.3
+;; et donc Pi(B and D) <= 0.7 <1
+;; 4. Pi(A and B and E) >0 ?
+;; equivalent à 1- N(not (A and B and E)) >0
+;; c'est a dire N(not (A and B and E)) <?1
+;; en ajoutant A and B and E il ne faudrait 
+;; pas trouver incons avec degré = 1
+;; c'est toujours vrai car aucune formule de la
+;; base n'est à 1
+;; 5. 
+;; A and B and E;; 1
+;; a) necessité presence de David on ajoute not D
+;; not D ;; 1
+;; aucune car not D est consistant avec BC
+;; necessité absence de David
+;; D ;;?1
+;; unsat 
+;; on supprime 0.2 puis 0.3 puis 0.4 cons
+;; donc incons(BC cup Neg(not D))=0.4
+;;  certitude d'absence de David >= 0.4
+;; b)
+;; not C ;; 1
+;; idem consistant N(C) >= 0 aucune info
+;; C ;;?1
+;; supprime 0.2 0.3 0.4 0.5 0.6 cons
+;; N(not C)>= 0.6
+;; c)
+;; not ret ;;?1
+;; retard certain à au moins 0.3 N(ret)>=0.3
+;; clm ;; 1
+;;?N(not clm) >=0.3
+;; not eff ;; 1
+;; N(eff) >=0.7
+;; 6)
+;; A and B and D;;?1
+;; cette fois-ci la base est inconsistante
+;; incons(BC)= 0.4
+;; not ret;; 1
+;; on ne peut pas conclure ret car en ajoutant 
+;; not ret le degré d'incons n'augmente pas
+;; ret;; 1
+;; non plus on ne peut rien dire sur le retard
+;; il y a des modeles de BC_04 avec ret V 
+;; et des modeles avec ret F
