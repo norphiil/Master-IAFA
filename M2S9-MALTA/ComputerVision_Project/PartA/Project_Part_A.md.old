@@ -1,0 +1,55 @@
+# Part A
+
+Data augmentation is an essential technique in the field of computer vision, particularly in deep learning. It refers to the process of generating new training samples from existing ones by applying various transformations that preserve data labels. This practice improves the diversity and volume of training datasets, which is essential for building robust, high-performance deep learning models.
+
+## Milestones in computer vision
+
+The journey of computer vision has been marked by a number of milestones. The development of convolutional neural networks (CNNs) revolutionized the field, enabling machines to efficiently analyze visual data with a level of depth and complexity previously unattainable. Large-scale image datasets such as ImageNet have been instrumental in this progress, providing a wide range of annotated images for training and benchmarking purposes.
+
+## Relevance of data augmentation
+
+In deep learning models for computer vision, data augmentation serves as a countermeasure to overfitting, a common challenge when a model performs well on training data but poorly on unseen data. By artificially expanding the training set, data augmentation enables models to learn more generalized features.
+
+## Data augmentation techniques
+
+Common data augmentation techniques in computer vision include
+
+- Flipping: Mirroring horizontal or vertical images.
+- Rotation: Rotating images by a certain angle.
+- Scaling: Resize images by zooming in or out.
+- Crop: Cut out parts of an image.
+- Color jigging: modify colors by adjusting brightness, contrast, saturation and hue.
+
+## Recent advances
+
+Recent advances in data augmentation techniques have introduced more sophisticated methods such as :
+
+- Clipping: Random removal of image sections.
+- Blending: Weighted combination of image pairs and their labels.
+- AutoAugment: Automatic discovery of augmentation policies that best improve the performance of a given model.
+
+These techniques contribute to model robustness by presenting a wider variety of scenarios during training, improving the model's ability to generalize to new data.
+
+## Application to computer vision tasks
+
+Data augmentation is crucial in object detection and image segmentation. YOLOv4's "bag of freebies" includes a set of free data augmentation techniques that significantly improve pattern detection performance without increasing computational costs. The new YOLOv9 version further optimizes performance with features such as Programmable Gradient Information (PGI) and Generalized Efficient Layer Aggregation Network (GELAN), setting new benchmarks in real-time applications.
+
+Platforms such as Roboflow streamline the development of computer vision solutions, offering tools for dataset creation, model training and large-scale deployment. Their automated labeling and model deployment functions facilitate rapid development and innovation in this field.
+
+## Recent articles
+
+Recent articles have demonstrated the effectiveness of data augmentation in achieving state-of-the-art results. A comprehensive review by Kumar et al. provides an overview of data augmentation approaches and their impact on computer vision tasks. Another study explores the effectiveness of data augmentation in image classification using deep learning, highlighting the potential of generative adversarial networks (GANs) to generate new images for training.
+
+In conclusion, data augmentation is an indispensable tool in the arsenal of computer vision practitioners, enabling the development of models that are not only accurate but also resilient to the variability inherent in real-world visual data. Proper implementation of data augmentation strategies is essential to advance the field and achieve breakthroughs in a variety of computer vision applications.
+
+## References
+
+1. [T. Kumar, A. Mileo, R. Brennan, and M. Bendechache, "Image Data Augmentation Approaches: A Comprehensive Survey and Future Directions," *arXiv preprint arXiv:2301.02830*, 2023.](https://arxiv.org/abs/2301.02830)
+
+2. [L. Perez and J. Wang, "The Effectiveness of Data Augmentation in Image Classification using Deep Learning," *arXiv preprint arXiv:1712.04621*, 2017.](https://arxiv.org/abs/1712.04621)
+
+3. [A. Mumuni, F. Mumuni, and N. K. Gerrar, "A survey of synthetic data augmentation methods in computer vision," *arXiv preprint arXiv:2403.10075*, 2024.](https://arxiv.org/abs/2403.10075)
+
+4. [B. Zoph, E. D. Cubuk, G. Ghiasi, T.-Y. Lin, J. Shlens, and Q. V. Le, "Learning Data Augmentation Strategies for Object Detection," *arXiv preprint arXiv:1906.11172*, 2019.](https://arxiv.org/abs/1906.11172)
+
+5. [Boesch, G. (2024). YOLOv9: Advancements in Real-time Object Detection (2024).](https://viso.ai/computer-vision/yolov9/)
