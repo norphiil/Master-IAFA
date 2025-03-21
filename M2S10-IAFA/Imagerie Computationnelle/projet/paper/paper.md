@@ -1,0 +1,1817 @@
+# Citation Key: Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound
+
+---
+
+## Windowed Radon Transform and Tensor Rank-1 Decomposition for Adaptive Beamforming in Ultrafast Ultrasound
+
+### Samuel Beuret, Graduate Student Member, IEEE, and Jean-Philippe Thiran, Senior Member, IEEE
+
+
+**_Abstract_** **—** **Ultrafast ultrasound has recently emerged as**
+**an alternative to traditional focused ultrasound. By virtue**
+**of the low number of insonifications it requires, ultrafast**
+**ultrasound enables the imaging of the human body at**
+**potentially very high frame rates. However, unaccounted**
+**for speed-of-sound variations in the insonified medium**
+**often result in phase aberrations in the reconstructed**
+**images. The diagnosis capability of ultrafast ultrasound**
+**is thus ultimately impeded. Therefore, there is a strong**
+**need for adaptive beamforming methods that are resilient**
+**to speed-of-sound aberrations. Several of such techniques**
+**have been proposed recently but they often lack paral-**
+**lelizability or the ability to directly correct both transmit**
+**and receive phase aberrations. In this article, we intro-**
+**duce an adaptive beamforming method designed to address**
+**these shortcomings. To do so, we compute the win-**
+**dowed Radon transform of several complex radio-frequency**
+**images reconstructed using delay-and-sum. Then, we apply**
+**to the obtained local sinograms weighted tensor rank-1**
+**decompositions and their results are eventually used to**
+**reconstruct a corrected image. We demonstrate using sim-**
+**ulated and in-vitro data that our method is able to success-**
+**fully recover aberration-free images and that it outperforms**
+**both coherent compounding and the recently introduced**
+**SVD beamformer. Finally, we validate the proposed beam-**
+**forming technique on in-vivo data, resulting in a significant**
+**improvement of image quality compared to the two refer-**
+**ence methods.**
+
+**_Index Terms—_** **Aberration correction, adaptive beamform-**
+**ing, ultrafast ultrasound.**
+
+Manuscript received 30 December 2022; revised 16 April 2023
+and 30 June 2023; accepted 7 July 2023. Date of publication 14 July
+2023; date of current version 2 January 2024. This work was supported
+by the École poytechnique fédérale de Lausanne (EPFL). (Correspond_ing author: Samuel Beuret.)_
+This work involved human subjects or animals in its research. Approval
+of all ethical and experimental procedures and protocols was granted by
+the Cantonal Ethics Committee of the Canton of Vaud, Switzerland, under
+Application No. 2022-01696, and performed in line with the Declaration
+of Helsinki.
+Samuel Beuret is with the Signal Processing Laboratory 5, École polytechnique fédérale de Lausanne (EPFL), 1015 Lausanne, Switzerland
+(e-mail: samuel.beuret@epfl.ch).
+Jean-Philippe Thiran is with the Signal Processing Laboratory 5,
+École polytechnique fédérale de Lausanne (EPFL), 1015 Lausanne,
+Switzerland, and also with the Department of Radiology, University Hospital Center and the University of Lausanne, 1015 Lausanne, Switzerland
+(e-mail: jean-philippe.thiran@epfl.ch).
+Digital Object Identifier 10.1109/TMI.2023.3295657
+
+
+I. INTRODUCTION
+N THE last 20 years, ultrafast ultrasound has emerged as a
+new paradigm rivalling traditional focused ultrasound [1].
+# I
+It relies on the emission of unfocused waves by an ultrasound
+transducer. The recorded echoes are then synthetically focused
+to recover an image estimating the reflectivity of the human
+soft tissues. To improve the image quality, images corresponding to different insonifications can then be combined into
+one, most commonly using coherent compounding [2]. Due
+to the high frame-rate the method allows, ultrafast ultrasound
+has enabled new diagnostic techniques such as shear-waves
+elastography [3], [4], [5] or neurofunctional imaging [6],
+among others.
+
+To reconstruct an image, ultrafast ultrasound—as well as
+traditional focused ultrasound—presupposes a constant speed
+of sound (SoS) in the imaged tissues. This hypothesis is
+however not met in practice since the SoS of human soft
+tissues can vary up to the order of 10% and beyond [7].
+In effect, SoS variations introduce high-order aberrations in
+the reconstructed images that are ultimately detrimental to the
+diagnostic capability of ultrasound imaging [8], [9]. Therefore,
+there exists a strong impetus to design image reconstruction
+techniques that are resilient to aberrations induced by SoS
+variations.
+
+Numerous aberration correction methods have thus been
+proposed throughout the development of ultrasound imaging [10], [11], [12]. A large part of these methods posits
+the existence of a thin aberrating layer in front of the transducer. Angular aberrations are therefore supposed constant in
+the medium. This hypothesis is justified in specific imaging
+configurations. In general, however, such methods fail to
+address the aberrations generated by a spatially varying SoS
+distribution.
+
+The recent years have witnessed the development of
+pulse-echo SoS imaging methods [13], [14], [15], [16]. Their
+goal is to reconstruct a map of the local SoS from pulse-echo
+ultrasound measurements. To correct for SoS aberrations,
+propagation delays can be deduced from the imaged SoS and
+then used by delay-and-sum (DAS) and coherent compounding
+to reconstruct an image [17], [18]. Especially relevant to our
+work is the method presented in [19], where directional filters
+applied to beamformed images are used to take into account
+
+
+© 2023 Th A th Thi k i li d d C ti C Att ib ti N C i l N D i ti 4 0 Li
+
+
+-----
+
+aberrations. Several drawbacks of this general approach can
+however be highlighted. First, such methods do not allow
+a gain of performance compared to DAS in the absence of
+aberrations. In particular, they do not alleviate diffraction—
+side lobes, grating lobes—artifacts and multiple scattering
+artifacts. Second, local SoS recovery currently lacks robustness, which may lead to errors in the propagation delays
+estimation. Finally, the estimation of SoS at a specific point
+in the medium requires the knowledge of aberration delays
+from the entire medium. This fact prevents the parallelization
+of such methods with respect to zones of interest. The SoS
+recovery from local aberration delays is furthermore a computationally demanding operation and those two facts currently
+prevent real-time implementations of pulse-echo SoS imaging
+methods.
+
+In contrast, novel approaches have emerged recently to
+better exploit the coherence existing between insonifications.
+These methods provide an increased robustness against SoS
+aberrations along with other artifacts such as diffraction and
+multiple scattering artifacts. The SVD beamformer introduced
+in [20] and [21] is especially relevant to our work. Its basic
+principle is to beamform using DAS a series of complex radiofrequency (CRF) images—one per insonification—and extract
+patches from them. A stack of patches can be interpreted as
+a matrix and its leading right singular vector corresponds to
+a patch of the corrected image. In addition, the leading left
+singular vector corresponds to local aberrations and can be
+used to estimate local SoS [22]. Computationally light and
+easily parralelizable, SVD beamforming is however only able
+to directly correct for transmit (Tx) aberrations. Receive (Rx)
+aberrations are overlooked, penalizing in practice the performances of the method. Another proposed approach exploiting
+redundancy between insonifications is ultrasound matrix imaging (UMI) [23], [24]. This technique constructs virtual emitters
+and receivers in the imaged medium. Aberration correction—
+among other features of UMI—is performed by maximizing
+the energy of emitters-receivers pairs when placed at the same
+location. However, the construction of the corrected focused
+reflection matrix in UMI-based aberration correction is a
+complex operation that must be iterated, hindering in practice
+computation time of the method. In addition, we can cite
+the locally adaptive Tx-Rx phase correction method proposed
+in [25]. Full-synthetic-aperture data are acquired and the
+local Tx phase aberrations associated with each element are
+computed from beamformed images. The estimated aberration
+phases are used to correct both Tx and Rx aberrations, thus
+obtaining a new image, and this procedure is ultimately
+iterated. However, the iterative process and the reliance on
+full-synthetic-aperture data negatively impacts the computational complexity of the method. Furthermore it is unable to
+provide any image improvement beside the correction of phase
+aberrations.
+
+Therefore, our goal in this article is to propose an adaptive
+beamforming method for ultrafast ultrasound that adheres to
+the following guidelines:
+
+  - It should be able to simultaneously correct for
+spatially-varying Tx and Rx phase aberrations,
+
+
+�
+_m�θ_ [Tx], x [el], t� = _h[Tx][�]θ_ [Tx], r� _h[Rx][�]x_ [el], r�e[−] _[j][ω][0][�τ][ Tx][(θ]_ [Tx][,][r][)]
+
+**_r_**
+
+_e[−]_ _[j][ω][0][�τ][ Rx][(][x]_ [el][,][r][)]vpe�t − _τ_ [Tx](θ [Tx], r)−τ [Rx](x [el], r)�γ (r) dr. (2)
+
+Here, the functions h[Tx] and h[Rx] are assumed real and positive
+and they factor in element directivity, decay and attenuation.
+In (2), we split the Tx and Rx propagation times into two
+distinct terms: the expected propagation times τ [Tx], τ [Rx] and the
+aberrations delays �τ [Tx], �τ [Rx]. In-line with previous works
+
+
+
+  - It should also provide additional robustness to artifacts
+
+such as multiple scattering and diffraction artifacts with
+respect to coherent compounding,
+
+  - It should be easily parallelizable and thus avoid to itera
+tively reconstruct images or to compute a local SoS map.
+To do so, we rely on the concept of change of basis from
+the canonical sensor basis to a Rx plane waves (PWs) basis—
+sometimes denoted as Radon domain—proposed recently or
+ultrasound pulse-echo imaging [26], [27], [28]. Following [20]
+and [24], the main rationale behind the proposed method is to
+express the data into a local Rx PW basis to account for the
+locality of the phase aberrations induced by SoS variations.
+
+II. THEORY
+
+In this section, we first describe the model of the received
+signals. Then, we detail the theoretical argument underpinning
+the proposed method.
+
+_A. Signal Model and Beamforming_
+
+In this article, we restrict ourselves to the case of a linear
+transducer. We suppose that it is aligned with the x axis and
+that waves are emitted towards the positive z direction. An element of the transducer is then defined by its position r [el] =
+
+[x [el], 0][T] . Furthermore, we assume that the transducer emits
+
+_N_ [Tx] PWs parametrized by their steering angles θ [Tx]. According
+to [29], we model the CRF echo-signal m received by an
+arbitrary sensor when an arbitrary steered PW is emitted as
+
+_m�θ_ [Tx], x [el], t� = vpe(t)∗t
+� �h˜ [Tx][�]θ [Tx], r, t� ∗t _h[˜]_ [Rx][�]x [el], r, t�[�] _γ (r) dr, (1)_
+
+**_r_**
+
+
+where the functions _h[˜]_ [Tx] and _h[˜]_ [Rx] designate the Tx and Rx spatial impulse responses (SIRs), respectively, and ∗t represents
+a temporal convolution. We denote by vpe the pulse-echo
+waveform accounting for the electro-acoustic (Tx) impulse
+response, acousto-electric (Rx) impulse response and electric
+excitation waveform. We represent by γ the tissue reflectivity
+function (TRF) which factors in the local fluctuations of
+density and SoS generating scattered echo signals.
+
+Following [30] and [31], we introduce Tx and Rx far-field
+approximations. The convolutions with the SIRs _h[˜]_ [Tx][ /][ Rx] in
+(1) are therefore approximated by the composition of a spatial
+multiplication with a function h[Tx][ /][ Rx] and a temporal shift
+according to the Tx/Rx wave propagation time. Moreover,
+we assume that vpe is a complex analytic signal with center
+frequency f0 = ω0/2π . Under these assumptions, we can
+rewrite (1) as
+
+
+-----
+
+on SoS estimation and aberration correction [15], [19], [20],
+we reduce the effect of aberration delays to phase shifts by
+assuming that vpe is narrow-band.
+
+We compute the expected propagation times by positing a
+uniform SoS c0 in the medium. The Tx propagation times are
+then given by
+
+
+Lastly, we assume the following hypothesis
+
+cos � _θ_ [Tx]−2 _θ_ [Rx] � ≈ 1, (8)
+
+which holds true even for large difference between θ [Tx] and
+_θ_ [Rx] (10% of error for a 52[◦] difference).
+
+Let us now define the Radon transform R of an arbitrary
+two-dimensional function g:
+
+
+�
+_R(r) {g(r)} (θ, d) =_
+
+
+_τ_ [Tx][�]θ [Tx], r� = [1]
+
+_c0_
+
+
+�u�θ [Tx][�], r�, with u� � = �sin(θ)
+cos(θ)
+
+
+�
+(3)
+
+
+_g(r)δ�_ ⟨u(θ), r⟩−d� dr, (9)
+**_r_**
+
+
+since we assume that the time origin t = 0 is defined as
+the instant when the wave is emitted from the point r =
+0 located at the center of the transducer. Furthermore, the Rx
+propagation times are given by
+
+
+_τ_ [Rx][�]x [el], r� = [1]
+
+_c0_
+
+
+��r − **_r_** el��. (4)
+
+
+with u a unitary vector in the direction given by θ (3), and
+_d the distance along u with respect to r = 0. We define_
+its adjoint operator R[∗], often designated as backprojection,
+applied to a function h as
+
+
+�
+_R[∗](θ,d)[{][h][(θ,][ d][)][}][(][r][)][ =]_
+
+
+_h�θ, ⟨u(θ), r⟩_ [�] dθ. (10)
+
+
+Aberration delays �τ [Tx][ /][ Rx] are therefore the result of a
+mismatch between the physical local SoS and the assumed
+SoS c0.
+
+We now suppose that DAS is applied independently to
+the data obtained with each PW insonification. Moreover,
+we assume that we have access to a continuous range of sensor
+positions x [el] ∈ � − _x_ [max], x [max][�]. Under this hypothesis, DAS
+can be expressed as
+
+� _x_ max
+_y[DAS][�]θ_ [Tx], r [′][�] = _θ_ [Tx], r [′][�]a[Rx][�]x [el], r [′][�]
+
+_x_ [el]=−x [max][ a][Tx][�]
+
+_m�θ_ [Tx], x [el], τ [Tx][�]θ [Tx], r [′][�] + τ [Rx][�]x [el], r [′][��] dr, (5)
+
+where a[Tx] and a[Rx] denote real and positive apodization
+weights. In particular, the sensor continuum hypothesis has
+the practical effect of neglecting grating lobes altogether. The
+resulting expression y[DAS] is a function of both the spatial
+position in the image r [′] and the Tx angle θ [Tx].
+
+_B. Local Angular Framework_
+
+To deepen our analysis, we focus on the vicinity V(r [w])
+of a point r [w] = [x [w], z[w]][T] in the image series y[DAS]. We first
+
+suppose that a[Tx][ /][ Rx], h[Tx][ /][ Rx], and �τ [Tx][ /][ Rx] vary slowly in the
+medium and thus can be assumed constant in V(r [w]) and equal
+to their value at r [w]. In that regard, V(r [w]) is equivalent to the
+isoplanatic patch used in [20] and [23]. Importantly, we posit
+that the reflectivity γ is null outside of V(r [w]). We will address
+in Section III-C how to enforce this hypothesis in practice.
+
+First of all, we introduce a local Rx angle
+
+
+� _x_ w − _x_ el
+_θ_ [Rx] = arctan
+
+_z[w]_
+
+
+�
+(6)
+
+
+Factoring in (2), the hypotheses introduced in this section,
+and the definition of the adjoint Radon transform R[∗], we can
+rewrite (5) as:
+
+_y[DAS][�]θ_ [Tx], r [′][�] =
+
+_R[∗](θ_ [mid],d) �s�θ [Tx], 2θ [mid] − _θ_ [Tx], d�[�] �r [′] − **_r_** [w][�] (11)
+
+with
+
+_s�θ_ [Tx], θ [Rx], d� = l[Tx][�]θ [Tx][�]l[Rx][�]θ [Rx][�] _f_ � _θ_ [Tx]+2 _θ_ [Rx] _, d�_ (12)
+
+a series of sinograms, one per combination of Tx angle θ [Tx]
+
+and window position r [w]. Here, d represents the distance to
+the center of the patch r [w] along u. Also, we introduce in (11)
+the mid angle
+
+_θ_ [mid] = _[θ]_ [Tx][ +][ θ] [Rx] (13)
+
+2
+
+which corresponds to the average between the Tx and Rx
+angles. In (12), we denote by l[Tx][ /][ Rx] two apodization/
+aberration functions defined as
+
+�θ [Tx][�]
+_l[Tx][�]θ_ [Tx][�] = a[Tx][�]θ [Tx][�]h[Tx][�]θ [Tx][�]e[−] _[j][ω][0][�τ]_
+
+_z[w]_ �θ [Rx][�]
+_l[Rx][�]θ_ [Rx][�] = _θ_ [Rx][�]h[Rx][�]θ [Rx][�]e[−] _[j][ω][0][�τ]_
+
+cos[2][ �]θ [Rx][�] _[a][Rx][�]_
+
+(14)
+
+since the Tx and Rx aberrations delays �τ [Tx] = �τ [Rx] = �τ
+are equal when expressed in the same angular basis. Note that
+there is an implicit dependency of θ [Rx], a[Tx][ /][ Rx], h[Tx][ /][ Rx], and
+_�τ_, and therefore of l[Tx][ /][ Rx], f and s, to r [w], omitted here
+for conciseness. Furthermore, the additional term appearing in
+the definition of l[Rx] compared to l[Tx] stems from the change
+of variable (6) applied to the integral (5). In the definition
+of s (12), f denotes a term factoring in the reflectivity and
+the pulse-echo waveform. In fact, f represents the Radon
+transform of an unapodized image free of aberrations restricted
+to V(r [w]). Importantly, we must highlight that f is a function
+of the mid angle. The definition of f and the computation of
+(11) are detailed in Appendix I. The proposed mathematical
+framework is inspired by [13] and [23]. In particular, the
+importance of the mid-angle in the proposed framework can
+
+
+and re-express each function of x [el] as a function of θ [Rx].
+Second, we posit that the Rx expected propagation time can
+be assumed linear within V(r [w]) and expressed as:
+
+
+_τ_ [Rx](θ [Rx], r) ≈ [1]
+
+_c0_
+
+
+�u�θ [Rx][�], r − **_r_** [w][�] + _z[w]_ (7)
+
+_c0 cos_ �θ [Rx][�] _[,]_
+
+
+with u� � the vector defined in (3). Equation (7) stems from
+the first order Taylor expansion of (4) around r [w], combined
+
+
+-----
+
+TABLE I
+TRANSDUCER AND SEQUENCE
+
+Therefore, our proposition for an adaptive beamforming
+method can be summarized as follows. We reconstruct using
+DAS a series y[DAS] of one image per insonification. These
+images are divided into zones (or patches) V(r [w]) to abide
+by the strong hypotheses introduced in this section. For each
+zone V(r [w]) we estimate first function s, then function f .
+Ultimately, function f is used to reconstruct an aberration-free
+image restricted to V(r [w]) and the local images obtained for
+different zones are combined into a single one.
+
+III. METHOD
+
+In this section, we present the practical aspects of the
+proposed method. We first detail the data acquisition and
+beamforming processes. We describe thereafter which patches
+V(r [w]) to select and how to obtain s for each patch, followed
+by the computation of f using tensor rank-1 decomposition.
+Finally, we present the reconstruction of the image, along
+with our implementation of the SVD beamformer used as a
+reference method.
+
+_A. Acquisition_
+
+All experimental data considered throughout this article
+have been acquired using a GE9L-D ultrasound transducer (GE
+Healthcare, Chicago, Illinois, USA) connected to a Vantage
+256 system (Verasonics, Kirkland, WA, USA). In addition,
+a geometric model of the transducer has been used in
+numerical simulations. The transducer comprises a series of
+
+_N_ [el] = 192 discrete sensors with positions x[el] ∈ R[N] [el].
+We consider a Tx sequence consisting of N [Tx] PWs with
+uniformly spaced steering angles θ [Tx] ∈ R[N] [Tx], where N [Tx] = 9
+and θ [Tx] = −20[◦], −15[◦], . . ., 20[◦] unless stated otherwise. The
+echo signals are recorded using all N [el] elements for each
+insonification. We directly apply the Hilbert transform to the
+raw measurements so that they can be described by a series
+of analytic signals gathered into a vector m ∈ C[N] [Tx] _[N]_ [el] _[N]_ [t]. N [t]
+
+denotes here the number of time samples considered after sampling the recieved signals with frequency fs. The specifications
+of the transducer and sequence are summarized in Table I.
+
+_B. Delay-and-Sum_
+
+Given the measurements m, we use DAS to compute the
+
+DAS
+
+
+as a sum over all sensors x [el] and we interpolate cubically
+between time samples. Function y[DAS] is estimated at a series
+of points r [′] = [xm[′] _[,][ z]n[′]_ []][T][,][ m][ =][ 1][, . . .,][ N][ x] _[,][ n][ =][ 1][, . . .,][ N][ z][.]_
+Therefore, it is represented by a vector y[DAS] ∈ C[N] [Tx] _[N][ x][ N][ z]_ .
+
+To ease the implementation of the proposed method, we use
+an isotropic grid with spatial spacings �x [′] = _�z[′]_ =
+_c0/(8 f0) = 38.5µm selected to guarantee a 200% fractional_
+bandwidth [33]. The Tx apodization a[Tx] is set to 1 whereas
+a Tukey apodization with 42[◦] half-aperture and 0.15 cosine
+fraction is used as the Rx apodization a[Rx] to reduce grating
+lobe level.
+
+We choose a 42[◦] half-aperture because it corresponds to
+the angle at which the directivity of the element reaches 6dB
+below its maximum value. Assuming a soft baffle boundary
+condition, we compute the theoretical angular directivity of a
+narrow element in the far field according to [34], considering
+the element width given in Table I.
+
+_C. Windowed Radon Transform_
+
+As detailed in Section II-B, beamformed images y[DAS] must
+be restricted to a series of patches V(r [w]). Practically, we thus
+window y[DAS] with a function w shifted by a series of vectors
+**_r_** [w], such that r [w] represents the center of the window and
+V(r [w]) = �r [′] : w�r [′] − **_r_** [w][�] _> 0�._
+To estimate function s for a specific window position r [w],
+we can insert the windowing operation into (11). The result
+can be rewritten as
+
+�r [′] − **_r_** [w][�] _y[DAS][�]θ_ [Tx], r [′][�] =
+
+_R[∗](θ_ [mid],d) �s�θ [Tx], 2θ [mid] − _θ_ [Tx], d�[�] _(r_ [′] − **_r_** [w]), ∀θ [Tx]. (15)
+
+The inverse of the Radon transform is given by filtered
+backprojection, the composition of a filtering self-adjoint
+operator F and the adjoint of the Radon transform R[∗] [35],
+namely
+
+_R[−][1]_ = R[∗]F ⇐⇒ �R[∗][�][−][1] = FR. (16)
+
+Equation (15) can thus be further re-expressed as
+
+_s�θ_ [Tx], θ [Rx], d� =
+
+_FR(r˜)�_ �r˜�y[DAS][�]θ [Tx], ˜r + r [w][���] _θ_ [Tx]+2 _θ_ [Rx] _, d�_ _, ∀θ_ [Tx], (17)
+
+with ˜r = r [′] − **_r_** [w]. We define the filtering operator F applied
+to an arbitrary function g(d) as
+
+1
+_F_ �gˆ� _(ζ) =_ (18)
+4π [2][ |][ζ] [| ˆ][g][(ζ)]
+
+in the frequency domain, with ˆg the Fourier transform of g
+and ζ the spatial frequency associated with d. Equation (17)
+without the filtering operation is known as a windowed Radon
+_transform [36]._
+
+In practice, we introduce a set of N [Rx] discrete uniformly
+spaced Rx angles θ [Rx]j _[,][ j][ =][ 1][, . . .,][ N][ Rx][ to evaluate (][17][), and]_
+we consider N _[d]_ values of d such that the spatial spacing of d
+is equal to the spatial grid spacing of the image �x [′] = �z[′].
+Furthermore, we consider a discrete grid of window centers
+**_rq[w],_** _p_ [such that][ p][ =][ 1][, . . .,][ N][ w][,][x] _[,][ q][ =][ 1][, . . .,][ N][ w][,][z][, with]_
+
+
+-----
+
+The distance between two window centers is set to �x [w] =
+_�z[w]_ = 24�x = 0.924mm to ensure a three quarters overlap
+between windows since a sufficient overlap is necessary in
+the image reconstruction step—c.f. Section III-E—. Finally,
+we implement (18) as a filter in the spatial domain to recover
+a bona fide estimation of s from the result of the windowed
+Radon transform.
+
+It is important to mention that the mathematical analysis
+detailed in Section II-B neglects the windowing of the image
+introduced in (17). A side effect of the windowing is the
+limitation of the angular resolution of s with respect to θ [Rx] due
+to the convolution in the frequency domain between the the 2D
+spectrum of the window and the spectra of the images y[DAS].
+To minimize this phenomenon, one must choose a window
+_w with a narrow main lobe. Furthermore, the window must_
+must be smooth to avoid artifacts in the reconstruction—
+c.f. Section III-E—. Thus, a Tukey window with 0.5 cosine
+fraction is chosen as a trade-off. The radius R[w] must also
+achieve a critical trade-off. It needs to be sufficiently small to
+enforce the hypotheses introduced in Section II-B, but large
+enough to be resilient to local TRF variations. We determined
+empirically that R[w] = 52�x = 2mm provides a good
+compromise for the proposed imaging configuration.
+
+In turn, the Rx angular spacing is constrained by the size
+of the window. This constraint stems from the necessity to
+sample the whole 2D frequency plane. If this condition is
+not met, strong local grating lobe artifacts can appear in the
+reconstructed image. Let us recall that the main lobe width of
+a 2D Tukey window with radius R[w] and 0.5 cosine fraction is
+
+_f_ [w] = 0.902/R[w]. We posit that the minimum distance between
+two samples in the frequency plane must be at most equal to
+the window main lobe width. In accordance with the size of the
+image grid, we need to guarantee a 200% fractional bandwith.
+Therefore, the maximum 2D spatial frequency magnitude we
+must consider is f [max] = 2 · 2 f0/c0. Under a small angle
+hypothesis, the maximum angular spacing of the mid angle
+is then given by f [w]/ _f_ [max] = 0.033 = 1.91[◦]. According to
+(17), there is a one-half factor between the mid angle and the
+Rx angle, the maximum Rx angular spacing is consequently
+3.82[◦]. Regarding the maximum Rx angle, we set it such
+that it corresponds to the last angle not affected by the Rx
+apodization a[Rx], namely (1 − 0.15)·42[◦]≈ 35[◦].
+
+_D. Tensor Rank-1 Decomposition_
+
+To recover l[Tx][ /][ Rx] and f from s, we propose to solve the
+following inverse problem
+
+
+2 ���
+��g���[Tx]×�[Rx]×�[d][ =] _θ_ [Tx]∈�[Tx],θ [Rx]∈�[Rx],d∈�[d]
+
+��g�θ [Tx], θ [Rx], d���2 dθ Tx dθ Rx dd, (22)
+
+for an arbitrary function g, and
+
+_f_ [Tx][,][Rx][�]θ [Tx], θ [Rx], d� = f � _θ_ [Tx]+2 _θ_ [Rx] _, d�_ (23)
+
+In (19), �[Tx][ /][ Rx], �[mid], and �[d] denote the ranges of θ [Tx][ /][ Rx],
+_θ_ [mid], and d, respectively. Problem (19) can be interpreted as
+a weighted and regularized rank-1 canonical polyadic (CP)
+decomposition in the continuous domain.
+
+The regularization term is necessary to prevent a divergence
+of the solution, for instance if l[Tx] and l[Rx] are null for certain
+angles. In fact, the regularization term enables a dynamical
+apodization of the image. A small regularization parameter
+_µ implies that the proposed method compensates for the_
+angular directivity of the sensors, among other magnitude
+effects acting on the received signals. Lateral resolution is
+thus typically favored at the expense of robustness to multiple
+scattering and diffraction artifacts. The opposite phenomenon
+occurs when a large regularization parameter µ is chosen.
+The proposed method is then more robust to artifacts at the
+expense of lateral resolution. We determined empirically that
+_µ = 1 provides a good trade-off—c.f. Section IV-B—. It can_
+be tuned in practice if the user wants to favor contrast or
+lateral resolution. The adaptive apodization of the proposed
+method extends in effect the Tx adaptive apodization already
+enforced by SVD beamforming. As presented in Section I, one
+of the goal of the proposed method is to provide an increase
+in performance compared to coherent compounding, even in
+the absence of aberrations. This improvement—of contrast,
+especially—is permitted in practice by the mechanism of adaptive apodization detailed above. In that regard, the proposed
+method shares strong similarities with minimum variance
+beamforming [37], [38]. Problem (19) can be interpreted as
+finding the weights l [Tx] and l [Rx] minimizing the variance of
+all the signals sharing the same mid angle, and the effect of
+the regularizer is akin to diagonal loading of the covariance
+matrix.
+
+We solve (19) with alternating least-squares (ALS), a common method for CP decomposition [39]. Its fundamental
+principle is to solve least-squares problems by fixing alternatively two out of the three variables f, l[Tx], and l[Rx]. The ALS
+scheme with continuous signals is detailed in Algorithm 1,
+where ¯· denotes the complex conjugate. In practice, the main
+ALS loop solves the following unconstrained problem
+
+
++ _[µ]_
+
+2
+
+
+1
+min
+_f, ∥l[Tx]∥�Tx_ =1, ∥l[Rx]∥�Rx =1 2
+
+
+��lTxlRx f Tx,Rx−s��2�[Tx]×�[Rx]×�[d] [+]
+
+
+1
+min
+_f,l[Tx],l[Rx]_ 2
+
+
+��lTxlRx f Tx,Rx−s��2�[Tx]×�[Rx]×�[d]
+
+
+��lTx��2�[Tx] ��lRx��2�[Rx] �� _f_ ��2�[mid]×�[d] _[.]_ (24)
+
+
+2
+
+
+2
+�� _f_ ���[mid]×�[d] _[,]_ (19)
+
+
+with
+��lTx / Rx��2�[Tx][ /][ Rx][ =] �θ [Tx][ /][ Rx]∈�[Tx][ /][ Rx] ��lTx / Rx�θ [Tx][ /][ Rx][���][2] dθ [Tx][ /][ Rx],
+
+(20)
+_f_ 2 id _d_ [=] �� _f_ �θ [mid] _d)_ 2 dθ dd (21)
+�� �� �� ��
+
+
+In a second time, Algorithm 1 rescales the solutions of (24)
+to recover the solutions of the constrained problem (19).
+The unit constraints on the aberration vectors ensure that the
+amplitude of f remains consistent between different window
+positions. To the best of our knowledge, there exists no proof
+of convergence for ALS in the present case of weighted CP
+
+
+-----
+
+**Algorithm 1 Alternating Least Squares**
+
+_l[Tx][�]θ_ [Tx][�] ← 1;
+_l[Rx][�]θ_ [Rx][�] ← 1;
+**for i := 1 to N** _[iter]_ **do**
+
+_f_ �θ [mid], d� ←
+
+2 �θ [Tx][ ¯][l][Tx][�]θ [Tx][�]l[¯][Rx][�]2θ [mid]−θ [Tx][�]s�θ [Tx],2θ [mid]−θ [Tx],d� dθ [Tx]
+
+2 2 ;
+2 �θ [Tx] ��lTx�θ [Tx][�]l[Rx][�]2θ [mid]−θ [Tx][���][2] dθ [Tx]+µ��lTx���[Tx] ��lRx���[Rx]
+
+_l[Tx][�]θ_ [Tx][�]←
+��θ [Rx],d _[f][¯]�_ _θ_ [Tx]+2 _θ_ [Rx] _,d�l¯[Rx][�]θ_ [Rx][�]s�θ [Tx],θ [Rx],d� dθ [Rx] dd
+
+��θ[Rx],d���� _f_ � _θ_ [Tx]+2 _θ_ [Rx] _,d�l[Rx][�]θ_ [Rx][�][���]�2 dθ [Rx] dd+µ��lRx��2�[Rx] �� _f_ ��2�[mid]×�[d] ;
+
+_l[Rx][�]θ_ [Rx][�] ←
+��θ [Tx],d _[f][¯]�_ _θ_ [Tx]+2 _θ_ [Rx] _,d�l¯[Tx][�]θ_ [Tx][�]s�θ [Tx],θ [Rx],d� dθ [Tx]dd
+
+��θ[Tx],d���� _f_ � _θ_ [Tx]+2 _θ_ [Rx] _,d�l[Tx][�]θ_ [Tx][�][���]�2 dθ [Tx] dd+µ��lTx��2�[Tx] �� _f_ ��2�[mid]×�[d] ;
+
+**end**
+_n[Tx]_ = ��lTx���[Tx] [;]
+_n[Rx]_ = ��lRx���Rx ;
+
+_l[Tx][�]θ_ [Tx][�]
+_l[Tx][�]θ_ [Tx][�] ← ;
+
+_n[Tx]_
+
+_l[Rx][�]θ_ [Rx][�]
+_l[Rx][�]θ_ [Rx][�] ← ;
+
+_n[Rx]_
+
+_f_ �θ [mid], d� ← _n[Tx]n[Rx]_ _f_ �θ [mid], d�;
+**Return: f, l[Tx], l[Rx]**
+
+unweighted regularized case [39]. Even if we are not certain
+that ALS converges to a global minimum, we are guaranteed
+that it will converge to a local minimum that is at least as
+good—with respect to the loss—as the case where l[Tx] and
+_l[Rx]_ are uniform.
+
+In practice, we need to discretize l[Tx], l[Rx], and f . First of
+all, we can naturally express l[Tx] as a vector l [Tx] ∈ C[N] [Tx] .
+In addition, we can determine the discrete Rx angles θ [Rx] ∈
+R[N] [Rx] and mid angles θ [mid] ∈ R[N] [mid] such that interpolation can
+be avoided in the implementation of Algorithm 1. To do so,
+the Tx and Rx angular spacings should be multiples of one
+another and the angular spacing of θ [mid] should be half of the
+minimum of the Tx and Rx angular spacings. Consequently,
+we can infer that θ [Rx] = [−35[◦], −32.5[◦], . . ., 35[◦]], since the
+angular spacing must be inferior to 3.82[◦] in accordance with
+Section III-C, and that θ [mid] = [−27.5[◦], −26.25[◦], . . ., 27.5[◦]],
+since the maximum mid angle is given by (35[◦]+20[◦])/2 =
+27.5[◦], namely the average between the maximum Tx and Rx
+angles. Practically, only a few iterations are necessary in order
+for ALS to converge, in particular we set N [iter]=20. Moreover, ALS is computationally light and easily parallelizable,
+as long as interpolation can be avoided in its implementation.
+Its computational complexity follows O�N [iter] _N_ _[d]_ _N_ [mid][�] and the
+time complexity of its GPU implementation can be reduced
+to O�N [iter] log �N _[d]_ _N_ [mid][��]. Ultimately, Algorithm 1 is run for
+each window position r [w]p,q [.]
+
+_E. Image Reconstruction_
+
+Once a single sinogram f per window position is obtained
+using Algorithm 1, we recover an estimation of a local patch
+
+
+**Algorithm 2 Image Reconstruction**
+
+_y[f][ �]r_ [′][�] ← 0;
+_n_ �r [′][�] ← 0;
+**for p := 1 to N** _[w,x]_ _and q := 1 to N_ _[w,z]_ **do**
+
+_y[f, w][ �]r_ [′], r [w]p,q � ← _w_ �r [′] − **_r_** [w]p,q � _y[f, P][ �]r_ [′], r [w]p,q �;
+
+_n_ �r [′][�] ← _n_ �r [′][�] + w[2][ �]r [′] − **_r_** [w]p,q �;
+
+_y[f][ �]r_ [′][�] ← _y[f][ �]r_ [′][�] + y[f, w][ �]r [′], r [w]p,q �;
+**end**
+**for i := 1 to N** _[iter, out]_ **do**
+
+**for p := 1 to N** _[w,x]_ _and q := 1 to N_ _[w,z]_ **do**
+
+_y[f][,][0][ �]r_ [′][�] ← _y[f][ �]r_ [′][�] − _y[f, w][ �]r_ [′], r [w]p,q �;
+
+_v ←_ �r[′][ y][f][,][0][ �]r [′][�] _y¯[f, w][ �]r_ [′], r [w]p,q � dr [′];
+
+_y[f, w][ �]r_ [′][�] ← |v| _[y][f, w][ �]r_ [′][�];
+**end**
+_y[f][ �]r_ [′][�] ← 0;
+**for p := 1 to N** _[w,x]_ _and q := 1 to N_ _[w,z]_ **do**
+
+_y[f][ �]r_ [′][�] ← _y[f][ �]r_ [′][�] + y[f, w][ �]r [′], r [w]p,q �;
+**end**
+**end**
+
+_y[f][ �]r_ [′][�] = _[y]n[f]([(]r[r][′][′])[)]_ [;]
+
+**Return: y[f]**
+
+by applying the backprojection operator R[∗] to f, namely
+
+_y[f, P][�]r_ [′], r [w][�] = R[∗](θ [mid],d) � _f_ �θ [mid], d, r [w][���]r [′] − **_r_** [w][�] (25)
+
+in the continuous domain. Backprojection is then repeated for
+each window position r [w]p,q [.]
+As a final step, the patches obtained with (25) need to be
+assembled into a single CRF image y[f]. Unfortunately, the
+value of f for each window position r [w] is recovered up to an
+arbitrary phase. We must therefore make sure that the patches
+are added up in phase, otherwise detrimental artifacts are likely
+to appear. We thus perform the image reconstruction using
+Algorithm 2, where patches are added to the image y[f] after a
+phase correction v that is updated N [iter, out] times. N [iter, out] is set
+to 10 in practice. Moreover, we compute a normalization factor
+_n to correct magnitude variations induced by windowing. The_
+corrected image y[f] is discretized as a vector y[f] ∈ C[N][ x][ N][ z], using
+the same grid than the initial images y[DAS]. The brightness
+(B)-mode image is ultimately computed as
+
+_y[f, B][�]r_ [′][�] = 20 log10 ��yf�r [′][���]. (26)
+
+A visual summary of the proposed method is depicted in
+Figure 1.
+
+_F. SVD Beamforming_
+
+To compare the performance of our approach to a stateof-the art method, the SVD beamformer proposed in [20] is
+implemented. The choice of the SVD beamformer is motivated
+by its compatibility with the proposed PW sequence and its
+conceptual similarities with our method. However, we must
+
+
+-----
+
+![](C:/Users/norph/Documents/M2IAFA/Imagerie Computationnelle/projet/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound-bib4llm/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound.pdf-6-0.png)
+
+![](C:/Users/norph/Documents/M2IAFA/Imagerie Computationnelle/projet/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound-bib4llm/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound.pdf-6-1.png)
+
+![](C:/Users/norph/Documents/M2IAFA/Imagerie Computationnelle/projet/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound-bib4llm/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound.pdf-6-2.png)
+
+![](C:/Users/norph/Documents/M2IAFA/Imagerie Computationnelle/projet/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound-bib4llm/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound.pdf-6-3.png)
+
+Fig. 1. Summary of the proposed method. Top row: beamforming of a single complex radio-frequency image per insonification, followed by
+windowed Radon transform and filtering. Tensor rank-1 decomposition is then performed patch-wise according to (19) and Algorithm 1. The phase
+and magnitude of complex numbers are encoded by the hue and darkness of the depicted colors, respectively. Bottom row: reconstruction of a patch
+from the result of tensor decomposition, followed by the reconstruction of the output image from the whole set of patches according to Algorithm 2.
+
+
+![](C:/Users/norph/Documents/M2IAFA/Imagerie Computationnelle/projet/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound-bib4llm/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound.pdf-6-0.png)
+
+![](C:/Users/norph/Documents/M2IAFA/Imagerie Computationnelle/projet/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound-bib4llm/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound.pdf-6-1.png)
+
+highlight that the Tx-only correction performed by SVD
+beamforming allows for a computationally lighter method.
+
+The implementation is performed as follows. First,
+we define w[SVD] as a square window, such that the multiplication of an image with w[SVD] shifted by r _[w]_ corresponds to
+a patch extraction. Consequently, we can solve the following
+inverse problem
+
+
+![](C:/Users/norph/Documents/M2IAFA/Imagerie Computationnelle/projet/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound-bib4llm/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound.pdf-6-0.png)
+
+arg min
+_y[f, P],∥l[Tx]∥=1_
+
+
+�
+
+
+**_r[′]_**
+
+
+�
+
+_θ_ [Tx]
+
+
+��yf, P�r [′][�]l[Tx][�]θ [Tx][�]
+
+
+− _y[DAS][�]θ_ [Tx], r [′][�]w[SVD][�]r [′] − **_r_** _[w][���][2]_ dθ [Tx] dr [′], (27)
+
+for all the patch positions r [w]. The solution of (27) is a function
+
+_y[f, P][�]r_ [′], r _[w][�]_ that can be directly used by Algorithm 2 with
+_w = w[SVD]_ to reconstruct the corrected image y[f]. Similarly to
+the proposed method, y[DAS], y[f, P] and l[Tx] can be represented
+by discrete complex vectors. The solution of (27) is thus given
+by the two leading singular vectors of the windowed series of
+images expressed as a matrix.
+
+We set the parameters of the SVD beamformer to be as close
+as possible to the ones of the proposed method to ensure a
+meaningful comparison. In particular the half-side of a square
+patch is identical to the window radius R[w] (2mm) and the
+same distance between patch centers is kept.
+
+IV. EXPERIMENTS
+
+In this section, we detail the experiments we perform to
+check the validity of the proposed method and present their
+results. We also compare our method to standard coherent
+compounding and SVD beamforming. We first assess quantitatively the proposed method using simulated data, followed
+by tests of the method with in-vitro and in-vivo data.
+
+_A. Simulation_
+
+We depict in Figure 2a, the numerical phantom designed
+
+
+A SoS of 1540m s[−][1] is set in the phantom background. Two
+inclusions—one anechoic and one hypoechoic 6dB below the
+background echogeneicity—and six scatterers are embedded
+within the medium. Moreover, we add an irregular aberrating
+layer with a SoS of 1500m s[−][1] and an echogeneicity 6dB
+above the background on top of the phantom. In particular,
+the lower boundary of the aberrating layer is defined as
+
+_z[max](x) [mm] = 9 + 1.5 cos(2π_ _x/16)._ (28)
+
+We choose such a layer—in opposition to a flat layer or a phase
+screen—for its capacity to generate complex phase aberrations
+with strong lateral variations. Complex laterally-varying aberrations can typically occur in the imaging of the abdominal
+wall due to the interweave of muscle and fat tissues. We simulated using k-Wave [40] the data corresponding to 10 different
+speckle realisations of the phantom.
+
+In addition, figure 2a presents the zones considered to
+evaluate the performance of our method. As detailed below,
+four different features have been analyzed: contrast, scatterer
+resolution, speckle statistics, and the ability to accurately
+correct aberrations.
+
+ - To compare contrast, we compute the contrast ratio (CR)
+
+between the two inclusions and their adjacent backgrounds. The inclusions’ interiors used to estimate the
+CRs are highlighted with purple and green lines and the
+backgrounds are bounded by lighter lines. To account for
+the apparent position displacement due to the aberrating
+layer, the centers of both inclusions are shifted by 200µm
+along the z-axis in the coherent compounding, SVD
+beamforming and proposed method cases.
+
+ - To compare resolution, we compute the axial and lateral
+
+full width at half maximum (FWHM) of near and far
+field scatterers. They are displayed in red and orange in
+Figure 2a, respectively.
+
+  - To check if the first-order statistical properties of speckle
+
+
+-----
+
+![](C:/Users/norph/Documents/M2IAFA/Imagerie Computationnelle/projet/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound-bib4llm/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound.pdf-7-0.png)
+
+![](C:/Users/norph/Documents/M2IAFA/Imagerie Computationnelle/projet/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound-bib4llm/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound.pdf-7-1.png)
+
+![](C:/Users/norph/Documents/M2IAFA/Imagerie Computationnelle/projet/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound-bib4llm/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound.pdf-7-2.png)
+
+Fig. 2. Top row: B-mode images reconstructed from simulated data depicted with a 60 dB dynamic range, bottom row: examples of scatterers.
+a) Phantom geometry with the top aberrating layer and the zones considered for the computation of the metrics highlighted. b) Coherent compounding
+image reconstructed from a single speckle realisation of the phantom. c) Result of the SVD beamformer. d) Result of the proposed method.
+e) Reference coherent compounding image obtained from data simulated without the aberrating layer.
+
+
+![](C:/Users/norph/Documents/M2IAFA/Imagerie Computationnelle/projet/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound-bib4llm/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound.pdf-7-0.png)
+
+how much the speckle patterns generated by the different
+methods fit a Rayleigh distribution [41]. We perform
+Kolmogorov-Smirnov (KS) tests between the measured
+distributions of pixel magnitudes within the blue rectangle
+in Figure 2a and Rayleigh distributions fitted with a
+maximum likelihood estimator.
+
+ - Lastly, we check whether the proposed method is able
+
+to correctly compensate for Tx and Rx aberrations
+and recover speckle patterns coherent with a theoretical
+unaberrated image. To do so, we generate a reference
+image with DAS and coherent compounding from a
+simulation without the top aberrating layer. We then compute the maximum of the normalized cross-correlation
+between a series of patches extracted from the target
+CRF image and the corresponding patches in the reference CRF aberration-free image. The patches selected
+to perform this analysis present speckle patterns that are
+especially aberrated in the coherent compounding images.
+These patches are highlighted in blue in Figure 2a.
+
+Figures 2b-2d depict the results of coherent compounding,
+SVD beamforming and the proposed method using data from
+a single speckle realisation of the phantom. Close-ups of
+a near-field and a far-field scatterers (in red and orange in
+figure 2a) are also presented in the bottom row. Figure 2e
+displays the reference aberration-free image. Furthermore,
+we summarize in Table II the different metrics, averaged over
+10 speckle realisations of the phantom. The standard deviation
+is given between parentheses.
+
+From the results presented in Table II, we can observe
+that the most noticeable benefit of the proposed method with
+respect to coherent compounding and SVD beamforming is
+its capacity to accurately reconstruct scatterers. As depicted in
+the close-ups of Figure 2, the SVD beamformer improves the
+quality of the far-field scatterer—even if it is not reflected on
+its lateral FWHM—but fails to correct the near-field scatterer.
+On the contrary, the proposed method recovers scatterers that
+are qualitatively and quantitatively comparable to the ones
+of the reference image. Nevertheless, we can notice that the
+
+
+![](C:/Users/norph/Documents/M2IAFA/Imagerie Computationnelle/projet/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound-bib4llm/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound.pdf-7-0.png)
+
+TABLE II
+SIMULATION RESULTS
+
+compared to the reference image is not compensated by the
+SVD beamforming and the proposed method.
+
+Regarding the anechoic inclusion, we can notice that both
+SVD beamforming and the proposed method provide contrast
+improvements compared to coherent compounding. The proposed method achieves however a better contrast ratio—even
+outperforming the contrast ratio of the reference image—and
+a better reconstruction of the inclusion’s shape. With regard
+to the hypoehoic inclusion, all four methods achieve similar
+average contrast ratios with similar standard deviations.
+
+Finally, from the normalized cross-correlation with the reference image, we observe that our method highly outperforms
+SVD beamforming and coherent compounding. The SVD
+beamformer allows only a limited improvement compared to
+coherent compounding. In contrast, the image reconstructed
+using the proposed method consistently correlates with the
+reference image to a high degree, thus accurately compen
+
+-----
+
+![](C:/Users/norph/Documents/M2IAFA/Imagerie Computationnelle/projet/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound-bib4llm/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound.pdf-8-0.png)
+
+![](C:/Users/norph/Documents/M2IAFA/Imagerie Computationnelle/projet/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound-bib4llm/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound.pdf-8-1.png)
+
+![](C:/Users/norph/Documents/M2IAFA/Imagerie Computationnelle/projet/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound-bib4llm/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound.pdf-8-2.png)
+
+![](C:/Users/norph/Documents/M2IAFA/Imagerie Computationnelle/projet/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound-bib4llm/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound.pdf-8-3.png)
+
+Fig. 3. Influence of the regularization parameter µ on the average image
+quality metrics. The metrics are computed over 10 speckle realizations
+of the phantom and depicted with their standard deviations.
+
+The proposed method also maintains the speckle statistics
+with respect to the reference image. A slight improvement
+compared to the reference methods can be observed, but the
+uncertainty of the results prevents any conclusion.
+
+_B. Regularization Parameter_
+
+One of the key enablers of our method is the regularization parameter. To quantify its impact on imaging quality,
+we reconstruct the images corresponding to the 10 speckle
+realizations of the phantom with different values of the regularization parameter µ. We present in Figure 3 the evolution
+of the metrics—at the exception of axial resolution of the
+scatterers which is only weakly affected by the aberrations,
+as seen in Table II—with respect to µ. We depict in the same
+figure the metrics associated with coherent compounding,
+SVD beamforming and the reference image, which are all
+independent from the regularization parameter. The plain lines
+and shaded areas represent the mean and standard deviation
+of the metrics over the 10 speckle realisations, respectively.
+
+We can notice that the trade-off between resolution and
+robustness described in Section III-D is confirmed experimentally. Indeed, the lower the regularization parameter is, the
+smaller the lateral resolution becomes. The resolution of the
+reference image is even outperformed with both the near and
+far-field scatterers when µ < 1. By contrast, the contrast ratios
+of the anechoic inclusion—and to a lesser degree the hypoechoic inclusion—worsen, a sign that the proposed method
+
+
+![](C:/Users/norph/Documents/M2IAFA/Imagerie Computationnelle/projet/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound-bib4llm/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound.pdf-8-0.png)
+
+![](C:/Users/norph/Documents/M2IAFA/Imagerie Computationnelle/projet/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound-bib4llm/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound.pdf-8-1.png)
+
+Fig. 4. B-mode examples of scatterer and anechoic inclusion reconstructed using different values of the regularization parameter µ. They
+are compared with a reference aberration-free image and displayed with
+a 60 dB dynamic range.
+
+artifacts. This sensitivity to artifacts can also be observed
+on the normalized cross-correlation, since it also decreases
+when µ diminishes. The change in cross-correlation cannot
+however be solely explained by the presence of artifacts since
+the speckle is tightened when µ decreases. For illustration,
+we depict in Figure 4 a scatterer and the anechoic inclusion
+for three values of µ, along with the reference image. Finally,
+no significant variation can be observed regarding the fitting
+of the speckle pattern to a Rayleigh distribution.
+
+To conclude, we determine the default regularization parameter µ = 1 as the value at which the lateral resolution achieved
+by the proposed method is at least equal to the one of the
+reference image.
+
+_C. Number of Insonifications_
+
+We also test the influence of the number of insonifications
+on the quality of the images. To do so, we perform additional simulations, varying for each new sequence the number
+of PWs emitted N [Tx] but keeping the same steering angle
+range, namely −20[◦] to 20[◦]. The number of PWs considered
+
+_N_ [Tx] ranges from 5 to 80, since the result of the proposed
+method are incoherent if N [Tx] _< 5. We believe this limit_
+arises when the number of unknowns in (19) is too large in
+comparison with the size of the available data.
+
+Figure 5 represents the contrasts, speckle distribution, and
+speckle correlation with respect to the number of PWs considered N [Tx]. The plain lines and shaded areas represent the
+mean and standard deviation of the metrics over the 10 speckle
+realisations, respectively. The scatterers’ FWHMs are omitted
+due to the limited influence of the amount of PWs. With
+regard to the proposed method, both the Rx angles θ [Rx]
+
+and mid angles θ [mid] are updated for each new number of
+transmit angles N [Tx] to comply with the criteria disclosed in
+Section III-D.
+
+From Figure 5, we can observe an improvement of the anechoic CR with the number of PWs, regardless of the method
+applied. Notably, the relative difference between the four
+cases stays approximately constant. A noteworthy exception
+occurs when N [Tx] _> 40, the results of the proposed method_
+become worse than the reference image. As the number of
+insonifications N [Tx] grows, the number of mid angles N [mid],
+and therefore the size of _f, must be increased to avoid_
+
+
+![](C:/Users/norph/Documents/M2IAFA/Imagerie Computationnelle/projet/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound-bib4llm/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound.pdf-8-0.png)
+
+-----
+
+![](C:/Users/norph/Documents/M2IAFA/Imagerie Computationnelle/projet/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound-bib4llm/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound.pdf-9-0.png)
+
+Fig. 5. Evolution of the average image quality metrics with respect to
+the number of insonifications. The metrics are computed over 10 speckle
+realizations of the phantom and depicted with their standard deviations.
+
+of f beyond the minimum size necessary for patch reconstruction likely increases the variance of the patch reconstruction.
+Therefore, the sensitivity of the result to noise and imaging
+artifacts relatively to the other methods is negatively impacted.
+
+The influence of the number of PWs on the hypoechoic CR,
+speckle distribution, and speckle correlation is more limited.
+Nonetheless, an improved stability of the correlation with
+respect to NTx can be observed with SVD beamforming and
+the proposed method, especially when NTx < 10. Overall,
+we can conclude that the proposed method does not require a
+specific range of PWs to be effective.
+
+_D. In-Vitro Phantom_
+
+In addition to simulated data, the proposed method is
+also assessed with data measured on an in-vitro phantom.
+We employ a CIRS model 054GS general-purpose ultrasound
+phantom (Sun Nuclear, Melbourne, FL, USA) figuring a series
+of scatterers embedded within uniform speckle. We perform
+10 experiments, each consisting of N [Tx] = 9 PW insonifications. We move the transducer perpendicularly to the imaging
+plane between each experiment.
+
+Since the previous experiments considered only a specific
+aberration severity, we propose to test the influence of the
+aberration delays on the performance of the proposed method.
+To do so, we simulate the presence of a thin uniform aberrating
+layer in front of the transducer by introducing Tx and Rx
+aberration delays during delay-and-sum. This approach was
+chosen, in opposition to a physical aberrator, to parameterize
+precisely the strength of the aberration. In fact, to investigate
+the behaviour of the proposed method to different aberration
+strength, we consider 21 aberration values—defined as the
+one-way aberration delay of an unsteered PW—ranging from
+−1µs to 1µs. For each aberration value, we compare the
+results of coherent compounding with the proposed method
+
+
+Fig. 6. In-vitro phantom results. a) Example of an unaberrated B-mode
+image with the zones considered for the metrics computation highlighted.
+b) Lateral FWHM of a mid-field scatterer with respect to the unsteered
+one-way aberration delay of the thin aberrating layer simulated during
+delay-and-sum. c) Separability of adjacent scatterers located at 300 µm
+from one another, for the unaberrated coherent compounding image
+and the images reconstructed with the proposed method. d) Separability of adjacent scatterers located at 500 µm from one another.
+e) Cross-correlation with unaberrated coherent-compounding images.
+f) Cross-correlation with the result of the proposed method applied to
+unaberrated data. The metrics are computed for 10 transducer positions
+and depicted along with their standard deviations.
+
+parameters. Unfortunately, we must disclose that the proposed
+aberrating layer does not capture the complex nature of in-vivo
+aberrations. A phantom study with physical aberrators can be
+performed in the future to further assess our method.
+
+In line with Section IV-A, we compute the lateral FWHM
+of a mid-field scatterer—in orange in Figure 6a—and the
+maximum cross-correlation of a series of patches—in blue
+in Figure 6a—with respect to an unaberrated coherent compounding image. The results are depicted in Figure 6b and
+Figure 6e respectively, along with their standard deviation
+over the 10 experiments. In Figure 6f, we also depict the
+cross-correlation of the corrected image with the proposed
+method applied to unaberrated images. The resulting metric is
+therefore agnostic to the changes of speckle density induced
+by different regularizers µ. Furthermore, scatterer FWHM do
+not necessarily provide an accurate resolution metric in the
+
+
+-----
+
+![](C:/Users/norph/Documents/M2IAFA/Imagerie Computationnelle/projet/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound-bib4llm/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound.pdf-10-0.png)
+
+![](C:/Users/norph/Documents/M2IAFA/Imagerie Computationnelle/projet/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound-bib4llm/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound.pdf-10-1.png)
+
+![](C:/Users/norph/Documents/M2IAFA/Imagerie Computationnelle/projet/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound-bib4llm/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound.pdf-10-2.png)
+
+Fig. 7. Two in-vivo images of an abdominal wall (top and bottom row), using 9 plane wave insonifications and displayed with a 60 dB dynamic range.
+Results of coherent compounding, SVD beamforing and the proposed method are depicted. Areas of interest are highlighted in blue.
+
+
+![](C:/Users/norph/Documents/M2IAFA/Imagerie Computationnelle/projet/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound-bib4llm/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound.pdf-10-0.png)
+
+![](C:/Users/norph/Documents/M2IAFA/Imagerie Computationnelle/projet/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound-bib4llm/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound.pdf-10-1.png)
+
+we compute the separability between three scatters—in red in
+Figure 6a—located at 300µm and 500µm from one another.
+The separability S between two scatterers located at positions
+**_r_** [1] and r [2] in a B-mode image y[B] is defined as
+
+_S[d B] = min_ �y[B][�]r [1][�], y[B][�]r [2][��]
+
+− min _t_ **_r_** [1] + (1 − _t)r_ [2][�] (29)
+_t∈[0,1]_ _[y][B][�]_
+
+The influence of the aberration strength on the separability
+is depicted in Figure 6c and 6d, respectively, along with
+their standard deviation. Since separability is ill-defined for
+an aberrated image due to interferences between the aberrated
+PSFs of the scatterers, we only depict the separability of the
+unaberrated coherent compounding image.
+
+The main conclusion that can be drawn from Figure 6 is
+that the FWHM and cross-correlation concur to define a sharp
+boundary to the range of validity of the proposed method. This
+boundary occurs around an absolute aberration value of 0.6µs
+to 0.7µs. To put this value into perspective, it corresponds
+to the aberration delay generated by a 2cm-thick layer of
+subcutaneous fat with SoS 1476m s[−][1] [7]. The separability
+of the scatterers does not depict the same sharp transition but
+generally decreases with the aberration strength. We can notice
+that the separability values are coherent with the FWHM
+results and validate the resolution improvement allowed by
+the proposed method. Also, the resolution improvement with
+regard to coherent compounding, even without aberration,
+observed in Section IV-B for small values of the regularizer
+is confirmed by the scatterer separability. More generally, the
+conclusions obtained with simulated data are confirmed by the
+in-vitro phantom experiments.
+
+
+![](C:/Users/norph/Documents/M2IAFA/Imagerie Computationnelle/projet/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound-bib4llm/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound/Windowed_Radon_Transform_and_Tensor_Rank-1_Decomposition_for_Adaptive_Beamforming_in_Ultrafast_Ultrasound.pdf-10-0.png)
+
+_E. In-Vivo_
+
+To assess the in-vivo performance of the proposed method,
+we acquired two sets of data on the abdominal wall of a
+healthy volunteer (27 years old male), using 9 PW insonifications. The ultrasound sequence has been approved for research
+with human subjects by the Cantonal Ethics Committee of the
+Canton of Vaud, Switzerland. We reconstruct the images with
+coherent compounding, SVD beamforming and the proposed
+method, for both scanning positions. The resulting B-mode
+images are depicted in Figure 7, along with close-up of four
+areas of interest.
+
+We can notice in each image the complex structure of the
+medium, with a series of non-parallel muscle and fat layers.
+Both types of layer typically possess distinct SoS, different
+from the expected c0 =1540m s[−][1] [7]. Therefore, the complex
+interweave of layers present in both scanning positions likely
+generates non-negligible aberrations.
+
+We can first observe that the SVD beamformer and proposed method both improve contrast with respect to coherent
+compounding. The contrast improvement is especially visible
+in the median layer—between 2 and 3cm—of both images
+and corroborates the results obtained with simulated data.
+However, the most noteworthy effect of the proposed method
+is its capacity to reconstruct scatterers. It can be observed
+in the top area of interest of the first image. An ovoidal
+scatterer is reconstructed, whereas it lacks definition with the
+two reference methods. It can also be seen in the bottom
+zone of interest of the second image. The proposed method
+reveals the presence of five scatterers whereas their presence
+can only be guessed from the two reference methods. Overall,
+our method permits a general qualitative improvement of the
+
+
+-----
+
+images. As an illustration, we can see in the top zone of
+interest of the second image the reconstruction of an interface,
+whereas it appears faint with coherent compounding or split
+in half with SVD beamforming.
+
+V. DISCUSSION
+In this article, we introduce a novel adaptative beamforming
+method able to correct aberrations caused by SoS variations
+in the imaged medium. We show using simulated and in-vitro
+data that our method accurately corrects phase aberrations
+and recovers images that correlate to a high degree with
+ideal aberration-free images. In particular, the reduction in
+scatterer FWHM and the capacity to separate adjacent scatterers, confirm a large improvement in lateral resolution.
+We also establish that the proposed method allows a contrast
+improvement with respect to DAS even when aberration-free
+data are considered. Lastly, we present qualitative in-vivo
+results confirming, in particular, an improvement in scatterer
+resolution with regard to both coherent compounding and SVD
+beamforming.
+
+_A. Computation Time and Generalizability_
+
+As desired, our method is highly parallelizable. Specifically,
+the bulk of the proposed technique can be performed simultaneously for each patch. The windowed Radon transform—the
+most computationally heavy operation of our method—can
+be parallelized further with respect to the Tx angles. The
+main temporal bottleneck is then given by the two iterative
+algorithms (Algorithms 1 and 2), but the numbers of iterations
+
+_N_ [iter] and N [iter, out] remain small in practice. Our prototype GPU
+implementation using 9PWs currently runs in 30 seconds on
+an Nvidia GeForce 2080 Ti GPU (Nvidia Corporation, Santa
+Clara, CA, USA). In particular, the computational time currently achieved by the proposed method do not compare with
+the one of the SVD beamformer, for which real-time computation has been reported [20]. The current implementation relies
+on Numba CUDA [43], a just-in-time GPU compiler of Python
+code. We consider that a bona fide CUDA implementation of
+the method can achieve a significant performance improvement with regard to the current implementation. In particular,
+the memory management can be greatly improved. The choice
+of the different parameters of the proposed method can also be
+optimized with computation time in mind. Overall, we believe
+that the computation time can be reduced to allow real-time
+image reconstruction.
+
+More generally, we believe that the local PW basis proposed
+in this article is well-suited for limiting the computational
+complexity of local aberration correction. As discussed in
+Section III-C, restricting an image to a patch bounds the
+maximum angular resolution of its Radon transform. Selecting
+the Rx angles to approximate this bound leads to a reduction
+of data to process compared to an explicit spatial alignment of
+the measured signals [25]. Moreover, waves emitted using the
+transducer’s full set of elements allow data acquisition with a
+high signal-to-noise ratio compared to a sequence of singleelement insonifications. The number of insonifications, and
+thus the amount of data to process, can therefore be reduced
+
+
+We limit ourselves in this article to ultrafast PW imaging. However, both focused ultrasound imaging and ultrafast
+imaging using diverging waves suffer from the same SoS
+aberrations that the proposed method aims to correct. This
+raises the question as to whether the proposed method can
+be used in these cases as well. The proposed theoretical
+framework can be easily adapted to other insonifications, with
+the caveat that the angles of the incident waves θ [Tx] vary with
+the window position r [w]. However, additional difficulties arise
+in the implementation of Algorithm 1. Since the Tx angles
+**_θ_** [Tx] are not necessarily uniformly spaced anymore, the Rx
+angles θ [Rx] and mid angles θ [mid] cannot be selected to allow
+a direct discretization of Algorithm 1. Its performances are
+therefore expected to be ultimately impeded compared to PW
+imaging.
+
+Nonetheless, the proposed method can be directly applied to
+data acquired with any linear transducer emitting a sequence
+of uniformly spaced PWs. The proposed image grid size
+_�x = �z, distance between window centers �x_ [w] = �z[w] and
+window Radius R[w] are defined in function of the wavelength
+_c0/_ _f0. They must be therefore updated if the beamforming_
+speed c0 or the excitation frequency f0 are changed. Moreover,
+the Rx apodization weights a[Rx] and the maximum mid and
+Rx angles must also be updated according to the directivity of
+the transducer elements.
+
+_B. Limitations_
+
+According to the principle of acoustic reciprocity, the phases
+of the angular aberrations functions l[Tx] and l[Rx] are equal in
+theory (14). Moreover, their amplitude can also be assumed
+equal under mild hypotheses, provided matching Tx and Rx
+apodization functions. However, the proposed method fully
+disregards the principle of acoustic reciprocity and posits that
+the Tx and Rx aberrations are independent, in stark contrast
+with other recent Tx/Rx aberration correction methods [24],
+
+[25]. The rationale behind this choice is twofold:
+
+1) Introducing a single aberration vector, or an equality
+
+constraint between the Tx and Rx aberration vectors,
+would complexify the minimization problem and prevent
+the use of ALS for its resolution.
+2) Tissue movements may occur between insonifications
+
+and can be interpreted as Tx phase shifts. Considering
+distinct Tx and Rx aberrations likely provide additional
+robustness to in-vivo movement artifacts compared to
+methods positing identical Tx and Rx aberrations. This
+property can be especially relevant for applications
+where tissue displacements are expected, such as elastography, or when large numbers of insonifications are
+considered.
+However, imposing the Tx and Rx aberrations to be equal—or
+penalizing their difference—can increase the robustness of the
+method if the tissue movements are negligible, especially when
+the number of PWs emitted is small. For example, considering
+a unique aberration vector could in theory extent the validity of
+the method to cases where N [Tx] _< 5. Therefore, it would be of_
+interest to seek an efficient way to integrate such a constraint
+
+
+-----
+
+performed to quantify the usefulness of the Tx-Rx splitting of aberrations, beyond the fact that it enables the use
+of ALS.
+
+A fundamental limitation of the proposed method is its
+failure to retrieve the absolute position of reflective structures.
+This drawback arises from the estimation of time delays by
+phase shifts and from the inability of our method to recover
+the global phase of l [Tx][ /][ Rx]. A reconstruction of the SoS map is
+therefore probably necessary to address this shortcoming. The
+parallelizability of such a method would however be impaired.
+The phase-shift hypothesis also limits the maximum aberration
+delay our method can correct, as seen in Section IV-D. The
+applicability of our method to cases where strong aberrations
+are present is therefore hindered, including most probably
+transcranial imaging.
+
+_C. Applications_
+
+Since the proposed method is able to recover aberration
+
+vectors l [Tx][ /][ Rx] for a series of points in the medium, one
+can imagine using their magnitude and phase to recover
+the spatial distribution of attenuation and SoS, respecively.
+Unfortunately, we advise against the direct use of the proposed
+method to that end. First, it has been shown that the phase
+modulation neglected by the proposed method (8) is important
+for the accuracy of the measurement model in pulse-echo SoS
+imaging [13]. Second, the regularization term introduced in
+(19) tends to bias the magnitude of the aberration vectors
+**_l_** [Tx][ /][ Rx], therefore reducing their interest as a feature for attenuation imaging. Nonetheless, we believe that windowed Radon
+transform can act as a powerful framework for quantitative
+pulse-echo ultrasound imaging in the future, but that a different
+way to estimate local angular aberrations must be devised with
+this specific application in mind.
+
+SoS aberrations affect the quality of displacement tracking
+between consecutive frames. The performances of methods
+such as shear-wave elastography are therefore diminished.
+A first possible application of the proposed method could be
+the improvement of displacement-tracking-based techniques as
+a consequence of our method’s capacity to correct for Tx
+and Rx aberrations. Further reaserach is however necessary
+to quantify the impact of the proposed method in that case.
+Nonetheless, we can state that our method is useful to improve
+B-mode imaging, as indicated by both the controlled experiments and the in-vivo examples. Due to the low number of
+insonifications it requires, our method can be useful to improve
+the quality of ultrasound imaging with portable transducer
+since the amount of data they can acquire and transmit is likely
+to be limited. Finally, the proposed method can be especially
+relevant to the challenging case of overweight patients, since
+the presence of fat is likely to generate SoS aberrations and
+thus to impact negatively the diagnosis capability of ultrasound
+imaging [8], [9], [44].
+
+APPENDIX I
+LOCAL BACKPROJECTION
+
+Let us replace in (5) the measurements m and the expected
+
+T Ri
+
+
+(2), (3) and (7), respectively. The beamformed images can then
+be expressed locally as
+
+
+�
+_y[DAS][�]θ_ [Tx], r [′][�] ≈ _θ_ [Tx][�]l[Rx][�]θ [Rx][��]
+
+_θ_ [Rx][ l][Tx][�]
+
+
+_vpe_
+
+
+_θ_ [Tx], r [′][�] ≈ _θ_ [Tx][�]l[Rx][�]θ [Rx][��] _γ (r)_
+
+_θ_ [Rx][ l][Tx][�] **_r_**
+
+� _c20_ cos � _θ_ [Tx]−2 _θ_ [Rx] ��u � _θ_ [Tx]+2 _θ_ [Rx] � _, r_ [′] − **_r�[�]_** dr dθ [Rx],
+
+(30)
+
+
+where l[Tx] and l[Rx] are the aberration/apodization functions
+introduced in (14). We propose to perform the following
+change of variable
+
+**_r = r_** [w] + α[∥]u � _θ_ [Tx]+2 _θ_ [Rx] � + α[⊥]u[⊥] [�] _θ_ [Tx]+2 _θ_ [Rx] � (31)
+
+
+where u[⊥] denotes a vector perpendicular to u and α[∥] and α[⊥]
+
+are integration variables along the directions given by u and
+**_u[⊥], respectively. Taking (8) into account, (30) can therefore_**
+be rewritten as
+
+
+�
+_y[DAS][�]θ_ [Tx], r [′][�] ≈
+
+
+_θ_ [Tx][�]l[Rx][�]θ [Rx][��]
+_θ_ [Rx][ l][Tx][�] _α[∥]_
+
+
+��u � _θ_ [Tx]+θ [Rx] � _, r_ [′] − **_r_** [w][�] − _α[∥][��]_
+
+2
+
+
+_vpe_
+
+
+� 2
+
+_c0_
+
+
+� �α[∥]u�θ [mid][�] + α[⊥]u[⊥][�]θ [mid][�] + r [w][�] dα[⊥] dα[∥]. (32)
+
+_α[⊥]_ _[γ]_
+
+
+We introduce the intermediary variable
+
+_d =_ �u � _θ_ [Tx]+2 _θ_ [Rx] � _, r_ [′] − **_r_** [w][�] (33)
+
+as the distance between the image position r [′] and r [w] along
+the direction given by u. Equation (32) is then equivalent to
+
+
+�
+_y[DAS][�]θ_ [Tx], r [′][�] ≈
+
+_θ_ [Rx]
+
+_s_ �θ [Tx], θ [Rx], �u � _θ_ [Tx]+2 _θ_ [Rx] � _, r_ [′] − **_r_** [w][��] dθ [Rx] (34)
+
+with
+
+
+_s�θ_ [Tx], θ [Rx], d� = l[Tx][�]θ [Tx][�]l[Rx][�]θ [Rx][�] _f_ � _θ_ [Tx]+2 _θ_ [Rx] _, d�_ (35)
+
+and
+
+� � 2
+_f_ �θ [mid], d� = �d − _α[∥][��]_
+
+_α[∥]_ _[v][pe]_ _c0_
+
+� �α[∥]u�θ [mid][�] + α[⊥]u[⊥][�]θ [mid][�] + r [w][�] dα[⊥] dα[∥]. (36)
+
+_α[⊥]_ _[γ]_
+
+
+Finally, (34) can be rewritten as (11) factoring in the definition
+of the backprojection operator (10).
+
+ACKNOWLEDGMENT
+
+The authors would like to thank Roser Vinals Terres for her
+re-reading, Baptiste Hériard-Dubreuil for his regular feedback,
+Thomas Deffieux for the helpful discussion, and Valentin
+
+
+-----
+
+REFERENCES
+
+[1] M. Tanter and M. Fink, “Ultrafast imaging in biomedical ultrasound,”
+
+_IEEE Trans. Ultrason., Ferroelectr., Freq. Control, vol. 61, no. 1,_
+pp. 102–119, Jan. 2014.
+
+[2] G. Montaldo, M. Tanter, J. Bercoff, N. Benech, and M. Fink, “Coherent
+
+plane-wave compounding for very high frame rate ultrasonography
+and transient elastography,” IEEE Trans. Ultrason., Ferroelectr., Freq.
+_Control, vol. 56, no. 3, pp. 489–506, Mar. 2009._
+
+[3] L. Sandrin, M. Tanter, S. Catheline, and M. Fink, “Shear modulus imag
+ing with 2-D transient elastography,” IEEE Trans. Ultrason., Ferroelectr.,
+_Freq. Control, vol. 49, no. 4, pp. 426–435, Apr. 2002._
+
+[4] M. Tanter, J. Bercoff, L. Sandrin, and M. Fink, “Ultrafast compound
+
+imaging for 2-D motion vector estimation: Application to transient elastography,” IEEE Trans. Ultrason., Ferroelectr., Freq. Control, vol. 49,
+no. 10, pp. 1363–1374, Oct. 2002.
+
+[5] J.-L. Gennisson, T. Deffieux, M. Fink, and M. Tanter, “Ultrasound
+
+elastography: Principles and techniques,” Diagnostic Intervent. Imag.,
+vol. 94, no. 5, pp. 487–495, May 2013.
+
+[6] C. Demené et al., “Transcranial ultrafast ultrasound localization
+
+microscopy of brain vasculature in patients,” Nature Biomed. Eng.,
+vol. 5, no. 3, pp. 219–228, Mar. 2021.
+
+[7] S. A. Goss, R. L. Johnston, and F. Dunn, “Comprehensive compilation
+
+of empirical ultrasonic properties of mammalian tissues,” J. Acoust. Soc.
+_Amer., vol. 64, no. 2, pp. 423–457, Aug. 1978._
+
+[8] J. J. Dahl, M. S. Soo, and G. E. Trahey, “Spatial and temporal aber
+rator stability for real-time adaptive imaging,” IEEE Trans. Ultrason.,
+_Ferroelectr., Freq. Control, vol. 52, no. 9, pp. 1504–1517, Sep. 2005._
+
+[9] G. E. Trahey and S. W. Smith, “Properties of acoustical speckle in the
+
+presence of phase aberration. Part I: First order statistics,” Ultrason.
+_Imag., vol. 10, no. 1, pp. 12–28, Jan. 1988._
+
+[10] G. C. Ng, S. S. Worrell, P. D. Freiburger, and G. E. Trahey, “A compar
+ative evaluation of several algorithms for phase aberration correction,”
+_IEEE Trans. Ultrason., Ferroelectr., Freq. Control, vol. 41, no. 5,_
+pp. 631–643, Sep. 1994.
+
+[11] S. W. Flax and M. O’Donnell, “Phase-aberration correction using signals
+
+from point reflectors and diffuse scatterers: Basic principles,” IEEE
+_Trans. Ultrason., Ferroelectr., Freq. Control, vol. 35, no. 6, pp. 758–767,_
+Nov. 1988.
+
+[12] M. O’Donnell and S. W. Flax, “Phase-aberration correction using signals
+
+from point reflectors and diffuse scatterers: Measurements,” IEEE Trans.
+_Ultrason., Ferroelectr., Freq. Control, vol. 35, no. 6, pp. 768–774,_
+Nov. 1988.
+
+[13] P. Stähli, M. Kuriakose, M. Frenz, and M. Jaeger, “Improved forward
+
+model for quantitative pulse-echo speed-of-sound imaging,” Ultrasonics,
+vol. 108, Dec. 2020, Art. no. 106168.
+
+[14] P. Stähli, M. Frenz, and M. Jaeger, “Bayesian approach for a robust
+
+speed-of-sound reconstruction using pulse-echo ultrasound,” IEEE
+_Trans. Med. Imag., vol. 40, no. 2, pp. 457–467, Feb. 2021._
+
+[15] M. Jaeger, G. Held, S. Peeters, S. Preisser, M. Grünig, and M. Frenz,
+
+“Computed ultrasound tomography in echo mode for imaging speed
+of sound using pulse-echo sonography: Proof of principle,” Ultrasound
+_Med. Biol., vol. 41, no. 1, pp. 235–250, Jan. 2015._
+
+[16] S. J. Sanabria, E. Ozkan, M. Rominger, and O. Goksel, “Spatial domain
+
+reconstruction for imaging speed-of-sound with pulse-echo ultrasound:
+Simulation and in vivo study,” Phys. Med. Biol., vol. 63, no. 21,
+Oct. 2018, Art. no. 215015.
+
+[17] R. Ali and J. J. Dahl, “Distributed phase aberration correction techniques
+
+based on local sound speed estimates,” in Proc. IEEE Int. Ultrason.
+_Symp. (IUS), Oct. 2018, pp. 1–4._
+
+[18] R. Rau, D. Schweizer, V. Vishnevskiy, and O. Goksel, “Ultra
+sound aberration correction based on local speed-of-sound map estimation,” in Proc. IEEE Int. Ultrason. Symp. (IUS), Oct. 2019,
+pp. 2003–2006.
+
+[19] M. Jaeger, E. Robinson, H. G. Akarçay, and M. Frenz, “Full correction
+
+for spatially distributed speed-of-sound in echo ultrasound based on
+measuring aberration delays via transmit beam steering,” Phys. Med.
+_Biol., vol. 60, no. 11, pp. 4497–4515, Jun. 2015._
+
+[20] H. Bendjador, T. Deffieux, and M. Tanter, “The SVD beamformer:
+
+Physical principles and application to ultrafast adaptive ultrasound,”
+_IEEE Trans. Med. Imag., vol. 39, no. 10, pp. 3100–3112, Oct. 2020._
+
+[21] H. Bendjador et al., “The SVD beamformer with diverging waves:
+
+A proof-of-concept for fast aberration correction,” Phys. Med. Biol.,
+vol. 66, no. 18, Sep. 2021, Art. no. 18LT01.
+
+
+
+[22] H. Bendjador, T. Deffieux, and M. Tanter, “SVD beamforming for ultra
+fast aberration correction and real-time speed-of-sound quantification,”
+in Proc. IEEE Int. Ultrason. Symp. (IUS), Sep. 2020, pp. 1–4.
+
+[23] W. Lambert, J. Robin, L. A. Cobus, M. Fink, and A. Aubry, “Ultrasound
+
+matrix imaging—Part I: The focused reflection matrix, the F-factor and
+the role of multiple scattering,” IEEE Trans. Med. Imag., vol. 41, no. 12,
+pp. 3907–3920, Dec. 2022.
+
+[24] W. Lambert, L. A. Cobus, J. Robin, M. Fink, and A. Aubry, “Ultrasound
+
+matrix imaging—Part II: The distortion matrix for aberration correction
+over multiple isoplanatic patches,” IEEE Trans. Med. Imag., vol. 41,
+no. 12, pp. 3921–3938, Dec. 2022.
+
+[25] G. Chau, M. Jakovljevic, R. Lavarello, and J. Dahl, “A locally
+
+adaptive phase aberration correction (LAPAC) method for synthetic
+aperture sequences,” Ultrason. Imag., vol. 41, no. 1, pp. 3–16,
+Jan. 2019.
+
+[26] H.-M. Schwab and R. Lopata, “A radon diffraction theorem for plane
+
+wave ultrasound imaging,” J. Acoust. Soc. Amer., vol. 153, no. 2,
+pp. 1015–1026, Feb. 2023.
+
+[27] G. Jansen, N. Awasthi, H. Schwab, and R. Lopata, “Enhanced radon
+
+domain beamforming using deep-learning-based plane wave compounding,” in Proc. IEEE Int. Ultrason. Symp. (IUS), Sep. 2021, pp. 1–4.
+
+[28] H. Schwab, F. van de Vosse, and R. Lopata, “An R-space theorem
+
+for plane wave ultrasound reconstruction,” in Proc. IEEE Int. Ultrason.
+_Symp. (IUS), Sep. 2020, pp. 1–4._
+
+[29] J. A. Jensen, “A model for the propagation and scattering of ultrasound
+
+in tissue,” J. Acoust. Soc. Amer., vol. 89, no. 1, pp. 182–190, Jan. 1991.
+
+[30] A. Besson et al., “Ultrafast ultrasound imaging as an inverse prob
+lem: Matrix-free sparse image reconstruction,” IEEE Trans. Ultra_son.,_ _Ferroelectr.,_ _Freq._ _Control,_ vol. 65, no. 3, pp. 339–355,
+Mar. 2018.
+
+[31] A. Besson et al., “A physical model of nonstationary blur in ultrasound
+
+imaging,” IEEE Trans. Comput. Imag., vol. 5, no. 3, pp. 381–394,
+Sep. 2019.
+
+[32] D. Perdios, M. Vonlanthen, F. Martinez, M. Arditi, and J.-P. Thiran,
+
+“CNN-based image reconstruction method for ultrafast ultrasound imaging,” IEEE Trans. Ultrason., Ferroelectr., Freq. Control, vol. 69, no. 4,
+pp. 1154–1168, Apr. 2022.
+
+[33] T. L. Szabo, Diagnostic Ultrasound Imaging: Inside Out. New York,
+
+NY, USA: Academic, 2004.
+
+[34] A. R. Selfridge, G. S. Kino, and B. T. Khuri-Yakub, “A theory for the
+
+radiation pattern of a narrow-strip acoustic transducer,” Appl. Phys. Lett.,
+vol. 37, no. 1, pp. 35–36, Jul. 1980.
+
+[35] S. Helgason, _The_ _Radon_ _Transform,_ vol. 2. New York, NY,
+USA: Springer, 1980.
+
+[36] G. Kaiser and R. F. Streater, “Windowed radon transforms, analytic
+
+signals, and the wave equation,” in Wavelets: A Tutorial in Theory and
+_Applications. San Diego, CA, USA: Academic, 1992, pp. 399–441._
+
+[37] N. Q. Nguyen and R. W. Prager, “A spatial coherence approach to
+
+minimum variance beamforming for plane-wave compounding,” IEEE
+_Trans. Ultrason., Ferroelectr., Freq. Control, vol. 65, no. 4, pp. 522–534,_
+Apr. 2018.
+
+[38] J.-F. Synnevag, A. Austeng, and S. Holm, “Benefits of minimum
+variance beamforming in medical ultrasound imaging,” IEEE Trans.
+_Ultrason., Ferroelectr., Freq. Control, vol. 56, no. 9, pp. 1868–1879,_
+Sep. 2009.
+
+[39] P. Comon, X. Luciani, and A. L. F. de Almeida, “Tensor decompositions,
+
+alternating least squares and other tales,” J. Chemometrics, vol. 23,
+nos. 7–8, pp. 393–405, Jul. 2009.
+
+[40] B. E. Treeby and B. T. Cox, “k-Wave: MATLAB toolbox for the
+
+simulation and reconstruction of photoacoustic wave fields,” Proc. SPIE,
+vol. 15, no. 2, 2010, Art. no. 021314.
+
+[41] C. B. Burckhardt, “Speckle in ultrasound B-mode scans,” IEEE Trans.
+
+_Sonics Ultrason., vol. SU-25, no. 1, pp. 1–6, Jan. 1978._
+
+[42] O. M. Hoel Rindal, A. Austeng, and A. Rodriguez-Molares, “Resolution
+
+measured as separability compared to full width half maximum for
+adaptive beamformers,” in Proc. IEEE Int. Ultrason. Symp. (IUS), Las
+Vegas, NV, USA, Sep. 2020, pp. 1–4.
+
+[43] S. K. Lam, A. Pitrou, and S. Seibert, “Numba: A LLVM-based Python
+
+JIT compiler,” in Proc. 2nd Workshop LLVM Compiler Infrastruct. HPC,
+Austin, TX, USA, Nov. 2015, pp. 1–6.
+
+[44] M. Maar, J. Lee, A. Tardi, Y.-Y. Zheng, C. Wong, and J. Gao, “Inter
+transducer variability of ultrasound image quality in obese adults: Qualitative and quantitative comparisons,” Clin. Imag., vol. 92, pp. 63–71,
+Dec. 2022.
+
+
+-----
+

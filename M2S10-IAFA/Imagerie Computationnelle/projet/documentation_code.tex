@@ -1,0 +1,223 @@
+\documentclass[12pt,a4paper]{article}
+
+% Packages essentiels
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage[hidelinks]{hyperref}
+\usepackage{geometry}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Configuration de la géométrie de la page
+\geometry{
+    a4paper,
+    margin=2.5cm
+}
+
+% Configuration de listings pour le code Python
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    stringstyle=\color{red},
+    commentstyle=\color{green!60!black},
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=5pt,
+    frame=single,
+    breaklines=true,
+    breakatwhitespace=true,
+    showstringspaces=false
+}
+
+% Informations du document
+\title{Documentation du Code Python:\\Implémentation d'un Algorithme de Beamforming\\pour l'Imagerie Ultrasonore}
+\author{CADET Florent}
+\date{\today}
+
+\begin{document}
+
+\pagenumbering{gobble} % Supprime la numérotation de la page de titre
+\maketitle
+
+\bigskip
+\bigskip
+\bigskip
+
+\begin{abstract}
+Cette documentation présente l'analyse et l'implémentation d'un algorithme de beamforming pour l'imagerie ultrasonore en Python. Le code développé intègre des techniques de traitement du signal comme la transformée de Radon et exploite le calcul parallèle sur GPU pour optimiser les performances. Ce document détaille l'architecture du code, ses fonctionnalités et son utilisation.
+
+\bigskip
+Github page : \url{https://github.com/norphiil/Code-Projet-Papier-8}
+\end{abstract}
+
+\clearpage 
+\pagenumbering{arabic}
+\tableofcontents
+
+\clearpage
+\section{Introduction}
+Cette analyse porte sur une implémentation Python d'un algorithme de beamforming pour l'imagerie ultrasonore. Le code combine des techniques avancées de traitement du signal avec une utilisation optimisée des ressources GPU, permettant d'obtenir des performances élevées dans le traitement des images échographiques.
+
+\subsection{Architecture Générale}
+L'architecture du code s'organise autour d'une chaîne de traitement qui commence au niveau du module d'acquisition, responsable de la lecture et du formatage des données brutes du transducteur. Un pipeline de prétraitement prend ensuite le relais pour préparer les signaux avant leur analyse. L'algorithme de beamforming, élément central du système, avec une optimisation de calcul GPU. La chaîne se termine par un module de visualisation offrant les outils nécessaires à l'analyse des résultats.
+
+\bigskip
+L'implémentation repose sur plusieurs techniques avancées qui contribuent à ses performances. L'utilisation de CUDA via la bibliothèque Numba permet une accélération significative des calculs sur GPU. Le traitement des données s'appuie sur une approche combinant transformée de Radon fenêtrée et décomposition tensorielle de rang 1, permettant une correction efficace des aberrations. La gestion de la mémoire est optimisée grâce à un traitement par lots.
+
+\subsection{Configuration du Système}
+Les paramètres de contrôle suivants définissent le comportement de l'algorithme :
+\begin{itemize}
+    \item \texttt{angle\_rx\_max} : Angle maximal de réception (36°)
+    \item \texttt{window\_radius} : Rayon de la fenêtre d'analyse (2mm)
+    \item \texttt{window\_type} : Type de fenêtrage (Tukey)
+    \item \texttt{reg\_param} : Paramètre de régularisation (1)
+    \item \texttt{low\_rank\_n\_iter} : Nombre d'itérations de l'algorithme (20)
+\end{itemize}
+
+\bigskip
+Ces paramètres par défaut offrent un équilibre entre qualité d'image et performance, tout en restant ajustables selon les besoins spécifiques de l'application.
+
+\section{Structure du Code Python}
+
+L'implémentation s'articule autour de modules fonctionnels distincts, chacun dédié à une étape spécifique du traitement des données échographiques.
+
+\subsection{Modules Fonctionnels}
+Le module d'acquisition, basé sur la fonction \texttt{read\_linear\_transducer\_data\_standard}, assure l'interface avec le matériel et la gestion des données brutes. Le prétraitement s'effectue via deux fonctions complémentaires : \texttt{compute\_hilbert\_fir} réalise la transformée de Hilbert, et \texttt{apply\_exponential\_tgc} applique la compensation de gain nécessaire à l'optimisation de la qualité d'image.
+
+L'algorithme de beamforming est implémenté dans le module central \\ \texttt{get\_beamformer\_npw\_linear\_transducer\_Tukey\_phase\_screen}, qui intègre un fenêtrage de Tukey pour l'optimisation du traitement.
+
+Le module de traitement adaptatif comprend quatre fonctions spécialisées :
+\begin{itemize}
+    \item \texttt{get\_select\_patch\_window\_cuda\_function} : Segmentation des données
+    \item \texttt{get\_patch\_radon\_transform\_rx\_cuda\_function} : Calcul de la transformée de Radon
+    \item \texttt{get\_decomposition\_function\_gpu} : Optimisation tensorielle
+    \item \texttt{get\_patch\_backprojection\_mid\_window\_cuda\_function} : Reconstruction des données
+\end{itemize}
+
+La reconstruction finale s'effectue via \texttt{get\_reconstruct\_image\_functions\_gpu}, qui assure l'assemblage cohérent des résultats.
+
+\subsection{Optimisation des Performances}
+L'implémentation exploite l'architecture CUDA via Numba pour maximiser les performances :
+
+\begin{itemize}
+    \item Optimisation de la mémoire partagée GPU
+    \item Parallélisation du traitement par patches
+    \item Optimisation des transferts de données CPU-GPU
+\end{itemize}
+
+\subsection{Configuration du Système}
+Les paramètres de configuration se répartissent en plusieurs catégories :
+
+\begin{itemize}
+    \item \textbf{Paramètres d'Acquisition} :
+    \begin{itemize}
+        \item \texttt{angle\_downsample\_factor} : Facteur de sous-échantillonnage angulaire
+        \item \texttt{attenuation\_tgc} : Coefficient de compensation de gain
+    \end{itemize}
+    
+    \item \textbf{Paramètres de Traitement} :
+    \begin{itemize}
+        \item \texttt{delta\_lambda\_fraction} : Résolution spatiale de la grille
+        \item \texttt{tukey\_angle} : Paramètre de fenêtrage
+    \end{itemize}
+    
+    \item \textbf{Paramètres d'Analyse} :
+    \begin{itemize}
+        \item \texttt{window\_radius} : Dimension de la fenêtre d'analyse
+        \item \texttt{window\_type} : Configuration du fenêtrage
+        \item \texttt{patch\_stride} : Pas d'échantillonnage spatial
+    \end{itemize}
+    
+    \item \textbf{Paramètres d'Optimisation} :
+    \begin{itemize}
+        \item \texttt{reg\_param} : Coefficient de régularisation
+        \item \texttt{low\_rank\_n\_iter} : Nombre d'itérations d'optimisation
+    \end{itemize}
+\end{itemize}
+
+\section{Pipeline de Traitement}
+
+Le traitement des données s'effectue selon un flux séquentiel optimisé, structuré en trois phases distinctes.
+
+\subsection{Acquisition et Prétraitement}
+L'acquisition des données brutes constitue la première étape du processus. Un sous-échantillonnage angulaire est appliqué selon les paramètres définis pour optimiser la charge de traitement. La conversion en format analytique s'effectue via la transformée de Hilbert, suivie d'une compensation de gain temporel qui normalise les amplitudes sur l'ensemble de la profondeur d'imagerie.
+
+\subsection{Configuration et Initialisation}
+Cette phase établit la configuration du système de traitement. La définition de la grille de reconstruction répond aux exigences de résolution spécifiées. Les paramètres angulaires sont calculés pour garantir la qualité d'image requise. La configuration des fenêtres d'analyse optimise l'équilibre entre résolution spatiale et rapport signal sur bruit.
+
+\subsection{Traitement GPU}
+Le traitement GPU constitue la phase centrale de l'algorithme. L'initialisation comprend l'allocation des ressources GPU et le transfert des paramètres système. Le traitement par lots s'effectue selon une séquence de quatre opérations :
+\begin{enumerate}
+    \item Segmentation des données en patches
+    \item Application de la transformée de Radon
+    \item Optimisation par décomposition tensorielle
+    \item Reconstruction locale des données
+\end{enumerate}
+
+Cette approche séquentielle optimise l'utilisation des ressources GPU tout en maintenant un niveau élevé de performance.
+
+\section{Utilisation du Code}
+
+\subsection{Prérequis Système}
+L'exécution du code nécessite la configuration suivante :
+\begin{itemize}
+    \item Environnement Python 3.x
+    \item Processeur graphique NVIDIA compatible CUDA
+    \item Bibliothèques Python requises :
+    \begin{itemize}
+        \item Numpy pour le calcul numérique
+        \item Scipy pour les fonctions scientifiques
+        \item h5py pour la gestion des données HDF5
+        \item Numba pour la compilation CUDA
+        \item Matplotlib pour la visualisation
+    \end{itemize}
+\end{itemize}
+
+\subsection{Format des Données}
+Le système requiert deux fichiers d'entrée structurés :
+
+\begin{itemize}
+    \item \textbf{Fichier de Données} (\texttt{data.npy}) :
+    \begin{itemize}
+        \item Structure : Tableau Numpy tridimensionnel (N\_Tx × N\_Rx × N\_t)
+        \item Dimensions : 
+        \begin{itemize}
+            \item N\_Tx : Nombre d'angles d'émission
+            \item N\_Rx : Nombre d'éléments récepteurs
+            \item N\_t : Nombre d'échantillons temporels
+        \end{itemize}
+    \end{itemize}
+    
+    \item \textbf{Fichier de Métadonnées} (\texttt{metadata.h5}) :
+    \begin{itemize}
+        \item Configuration angulaire
+        \item Paramètres temporels
+        \item Spécifications du système
+        \item Configuration de l'apodisation
+    \end{itemize}
+\end{itemize}
+
+\subsection{Procédure d'Exécution}
+L'exécution du code s'effectue selon la séquence suivante :
+\begin{enumerate}
+    \item Préparation de l'environnement de données
+    \item Configuration des paramètres système
+    \item Lancement du traitement
+\end{enumerate}
+
+\subsection{Fichiers de Sortie}
+Le traitement génère les fichiers suivants :
+\begin{itemize}
+    \item \texttt{data.npy} : Image reconstruite
+    \item \texttt{x\_coord.npy}, \texttt{z\_coord.npy} : Coordonnées spatiales
+    \item \texttt{additional\_parameters.h5} : Paramètres de reconstruction
+    \item \texttt{info.txt} : Journal d'exécution détaillé
+\end{itemize}
+
+\end{document} 

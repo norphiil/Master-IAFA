@@ -1,0 +1,347 @@
+\documentclass[a4paper,12pt, twocolumn]{article}
+
+% Encodage et langue
+\usepackage[utf8]{inputenc}  % Encodage UTF-8
+\usepackage[T1]{fontenc}     % Encodage des fontes
+\usepackage[french]{babel}   % Langue française
+\usepackage{booktabs}
+% Marges
+\usepackage[a4paper,margin=2.5cm]{geometry}
+
+% Mise en page
+\usepackage{titlesec}
+% Format pour les sections
+\titleformat{\section}
+  {\large\bfseries} % Formatage
+  {\thesection}     % Numérotation
+  {1em}             % Espacement entre le numéro et le titre
+  {}
+
+% Format pour les sous-sections
+\titleformat{\subsection}
+  {\normalsize\bfseries\itshape} % Formatage
+  {\thesubsection}               % Numérotation
+  {1em}                          % Espacement entre le numéro et le titre
+  {}
+
+% Format pour les sous-sous-sections
+\titleformat{\subsubsection}
+  {\small\bfseries} % Formatage
+  {\thesubsubsection} % Numérotation
+  {1em}              % Espacement entre le numéro et le titre
+  {}
+
+% Table des matières formatée
+\usepackage{tocloft}
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+
+% Autres packages utiles
+\usepackage{graphicx}  % Pour insérer des images
+\usepackage{hyperref}  % Liens hypertexte
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=black,
+    urlcolor=blue
+}
+
+\usepackage{biblatex} %Imports biblatex package
+\addbibresource{paper.bib} %Import the bibliography file
+
+% Titre du document
+\title{\textbf{ Détection automatique de \textit{fake news} \\ Apprentissage Automatique et ChatGPT} \\\large État de l'Art}
+\author{CADET Florent}
+\date{\today}
+
+
+\begin{document}
+
+\begin{onecolumn}
+% Page de titre
+\maketitle
+\thispagestyle{empty}  % Pas de numéro de page sur la page de titre
+\newpage
+
+% Table des matières
+% \tableofcontents
+    
+\newpage
+
+\section*{RÉSUMÉ}
+\label{chap:resume}
+L'augmentation rapide des contenus trompeurs en ligne, souvent désignés par le terme \textit{fake news}, représente un défi majeur pour la société contemporaine. Cette étude examine les diverses approches de détection automatique des \textit{fake news} à travers l'apprentissage automatique et les grands modèles de langage (LLMs). Les méthodes classiques telles que les Machines à Vecteurs de Support (SVM) et les classificateurs Naïve Bayes sont comparées à des techniques de deep learning, comme les ; réseaux de neurones convolutifs (CNN) et les transformers comme BERT et FakeBERT. Les LLMs, montrent des limites en tant que détecteurs autonomes mais offrent des contributions significatives lorsqu'ils sont intégrés avec des modèles spécialisés. Cet état de l'art cherche a  mettre en lumière les défis techniques et éthiques liés à la détection des \textit{fake news}, tels que les biais des données d'apprentissage et la robustesse des modèles face aux contenus évolutifs. Des axes de recherche futurs incluent l'intégration de méthodes multi-modales et de systèmes hybrides combinant IA et vérification humaine. Cette revue de la littérature propose des solutions pour améliorer la précision, la transparence et l'éthique des systèmes de détection automatiques, soulignant l'importance de collaborations interdisciplinaires pour lutter efficacement contre la désinformation.
+
+\section*{ABSTRACT}
+\label{chap:abstract}
+The rapid increase in misleading online content, often referred to as \textit{fake news}, represents a major challenge for contemporary society. This study examines various approaches to the automatic detection of \textit{fake news} through machine learning and large language models (LLMs). Classical methods such as Support Vector Machines (SVMs) and Naïve Bayes classifiers are compared with deep learning techniques, such as ; convolutional neural networks (CNNs) and transformers like BERT and FakeBERT. LLMs, show limitations as stand-alone detectors but offer significant contributions when integrated with specialized models. This state-of-the-art paper seeks to highlight the technical and ethical challenges associated with the detection of \textit{fake news}, such as the biases of training data and the robustness of models in the face of evolving content. Future research directions include the integration of multi-modal methods and hybrid systems combining AI and human verification. This literature review proposes solutions to improve the accuracy, transparency and ethics of automatic detection systems, underlining the importance of interdisciplinary collaborations to effectively combat misinformation.
+\end{onecolumn}
+
+\begin{twocolumn}
+\section{Introduction}
+\label{chap:introduction}
+
+\subsection{Contexte et Motivation}
+L’essor des plateformes numériques et des réseaux sociaux a profondément modifié la manière dont l’information est diffusée et consommée. Toutefois, cette démocratisation de la publication en ligne s’accompagne d’une prolifération de contenus trompeurs, intentionnellement erronés ou biaisés, souvent désignés sous le terme de \textit{fake news}. Ces fausses informations ont un impact significatif sur les opinions publiques, les processus politiques et la confiance dans les médias.
+
+En France, les fake news posent un défi particulier. Selon une étude, un site de fake news en France a généré plus de 11 millions d'interactions par mois, soit cinq fois plus que certaines marques de presse bien établies \cite{reuterfake}. De plus, 75\% des jeunes Français estiment que la politique est le sujet le plus susceptible d'être ciblé par des fake news, suivi par la politique internationale et les potins \cite{statista_fake_news}. Les réseaux sociaux comme Facebook et Twitter sont principalement responsables de la propagation des fake news en France, avec de nombreux Français admettant avoir cru ou partagé des informations fausses \cite{statista_spread, reuterfake}.
+
+Ces chiffres illustrent l'ampleur du problème des fake news en France et leur capacité à influencer les perceptions et les comportements à l'échelle mondiale.
+
+Les premières approches de détection des \textit{fake news} reposaient sur des techniques classiques d’apprentissage automatique, telles que les machines à vecteurs de support (SVM) et les classificateurs bayésiens naïfs, qui cherchaient à identifier des motifs linguistiques et des indices sémantiques révélateurs de tromperie \cite{conroy_automatic_2015}. Avec les avancées en intelligence artificielle, des modèles basés sur l’apprentissage profond, notamment les réseaux neuronaux hiérarchiques attentionnels (3HAN) \cite{singhania_3han_2017} et les modèles de type BERT \cite{kaliyar_fakebert_2021}, ont permis de capturer des caractéristiques linguistiques plus sophistiquées.
+
+Récemment, l’impact des grands modèles de langage (LLMs) sur la détection des \textit{fake news} a été étudié. Des recherches montrent que, bien que les LLMs puissent générer du texte convaincant et offrir des analyses riches en contexte, ils ne surpassent pas toujours les modèles spécialisés entraînés sur des jeux de données annotés \cite{hu_bad_2024}. Ces études suggèrent que les LLMs peuvent servir d’outils d’assistance aux détecteurs de \textit{fake news} plutôt que d’être utilisés comme classificateurs autonomes.
+
+\subsection{Objectifs de l’État de l’Art}
+Ce document vise à fournir une revue des travaux de recherche consacrés à la détection automatique des \textit{fake news}, en mettant l’accent sur les méthodes d’apprentissage automatique et l’apport des LLMs comme BERT. Plus précisément, nous nous fixons les objectifs suivants :
+\begin{itemize}
+\item \textit{Présenter les approches classiques et modernes :} Examiner l’évolution des techniques de classification, en comparant les modèles traditionnels (SVM, Naïve Bayes) aux approches plus récentes basées sur l’apprentissage profond.
+\item \textit{Évaluer l’apport des LLMs dans la détection des \textit{fake news} :} Analyser comment ces modèles peuvent compléter les méthodes existantes et quelles sont leurs forces et leurs limitations.
+\item \textit{Analyser les méthodes d’évaluation :} Passer en revue les jeux de données disponibles, les métriques utilisées et les protocoles d’évaluation appliqués dans la littérature.
+\item \textit{Discuter des défis actuels et des perspectives futures :} Identifier les limitations des méthodes actuelles et proposer des pistes d’amélioration pour renforcer la fiabilité et l’éthique des systèmes de détection.
+\end{itemize}
+
+\subsection{Structure du Document}
+Ce document est structuré comme suit :
+\begin{itemize}
+\item \textit{Chapitre 2 : Modèles d'apprentissage automatique pour la détection de \textit{fake news}} — Présentation des différentes approches utilisées dans la détection des \textit{fake news}, des modèles classiques aux techniques de deep learning.
+\item \textit{Chapitre 3 : Applications des LLMs}—Analyse des capacités des modèles génératifs dans la détection des \textit{fake news}, accompagnée d’études de cas et d’évaluations expérimentales.
+\item \textit{Chapitre 4 : Collection de test et méthodologies d’évaluation}—Présentation des jeux de données utilisés dans les recherches en détection des \textit{fake news} et des critères de performance des modèles.
+\item \textit{Chapitre 5 : Défis et limitation}—Discussion des principaux enjeux techniques et sociétaux liés à la détection automatique des \textit{fake news} et des limitations liées.
+\item \textit{Chapitre 6 : Perspectives et Travaux Futurs}—Analyse des axes de recherche émergents pour améliorer la détection des \textit{fake news}.
+\item \textit{Chapitre 7 : Conclusion}—Synthèse des résultats, implications théoriques et pratiques, et recommandations pour les recherches futures.
+\end{itemize}
+
+\subsection{Contribution et Importance}
+Cette revue contribue à l’avancement des connaissances sur la détection des \textit{fake news} en retraçant l’évolution des approches et en mettant en lumière les avancées en intelligence artificielle. Elle évalue l’impact des grands modèles de langage et identifie leurs limites. Enfin, elle propose des perspectives d’amélioration pour développer des systèmes de détection plus fiables et éthiques.
+
+\section{Etat de l’art en apprentissage automatique}
+\label{chap:etat_art_ml}
+
+La détection automatique des \textit{fake news} a considérablement évolué, passant de simples méthodes de classification de texte à des architectures complexes de deep learning. Ce chapitre explore les différentes techniques utilisées, depuis les approches classiques comme les modèles bayésiens et les SVM jusqu’aux modèles avancés tels que BERT et les architectures de type Transformer.
+
+\subsection{Méthodes classiques}
+Les premières approches reposaient sur des modèles d’apprentissage automatique qui analysaient les caractéristiques textuelles des articles.
+
+\subsubsection{N-grams et TF-IDF}
+Les représentations basées sur les N-grams (unigrammes, bigrammes) et les vecteurs TF-IDF ont été largement utilisées pour modéliser la structure textuelle des \textit{fake news}. Ces techniques permettent d’identifier les séquences de mots les plus caractéristiques des articles trompeurs et ont constitué une base essentielle pour les premiers systèmes de détection \cite{conroy_automatic_2015}.
+
+\subsubsection{Machines à Vecteurs de Support (SVM)}
+Les SVM ont montré leur efficacité en classifiant les articles en fonction de leur contenu linguistique. En combinaison avec des représentations TF-IDF, ces modèles ont permis d’atteindre des performances notables dans les premières approches de détection automatique des \textit{fake news}. Par exemple, selon Conroy, Rubin et Chen \cite{conroy_automatic_2015}, des techniques de syntaxe profonde et d'analyse sémantique ont été combinées avec succès pour atteindre une précision de 85-91 \% dans la détection de \textit{fake news}. De plus, l'utilisation de classificateurs SVM a démontré une performance de 86 \% dans la détection des spams d'opinion négatifs, soulignant la robustesse de cette approche dans des contextes variés.\cite{conroy_automatic_2015}.
+
+\subsubsection{Naïve Bayes}
+Le classificateur Naïve Bayes exploite la probabilité conditionnelle des mots pour déterminer si un article est faux ou authentique \cite{alim_al_ayub_ahmed_et_al_detecting_2021}. Bien qu’efficace pour des données textuelles bien structurées, il est limité face à des \textit{fake news} utilisant des constructions syntaxiques plus complexes \cite{conroy_automatic_2015, yang_unsupervised_2019}.
+
+\subsection{Deep Learning et Réseaux Neuronaux}
+L’émergence du deep learning a permis d’améliorer considérablement la précision des modèles de détection.
+
+\subsubsection{Réseaux de Neurones Convolutionnels (CNN)}
+Les CNN, bien que principalement utilisés en vision par ordinateur, ont été adaptés à l’analyse de texte en identifiant des motifs textuels complexes. Cette approche a démontré des performances prometteuses dans la classification des \textit{fake news} en exploitant des caractéristiques locales du texte \cite{kaliyar_fakebert_2021}.
+
+\subsubsection{Réseaux de Neurones Récurrents (RNN) et LSTM}
+Les RNN, notamment les LSTM, sont utilisés pour capturer les dépendances contextuelles et temporelles dans les articles. Ces modèles sont capables d’analyser la structure narrative des \textit{fake news} et d’identifier des incohérences dans le discours \cite{rai_fake_2022}.
+
+\subsubsection{Transformers : BERT et autres architectures basée sur les LLM}
+Les modèles basés sur les transformers, comme BERT et FakeBERT, ont révolutionné la détection de \textit{fake news} grâce à leur apprentissage bidirectionnel et à la combinaison avec les réseaux de neurones convolutifs, permettant ainsi une meilleure compréhension contextuelle et une précision accrue. \cite{kaliyar_fakebert_2021}. Des modèles spécifiques comme WELFake exploitent des représentations linguistiques enrichies pour améliorer la classification des \textit{fake news} \cite{verma_welfake_2021}.
+
+Récemment, des recherches ont examiné l’efficacité des LLMs tels que GPT-3.5 dans la détection des \textit{fake news}. Bien que ces modèles puissent générer des analyses pertinentes, ils ne surpassent pas nécessairement les modèles spécialisés complété d'un apprentissage fini sur des jeux de données annotés. Ils peuvent toutefois être exploités comme outils d’assistance pour améliorer l’interprétabilité des résultats, en fournissant des analyses multi-perspectives instructives. Ces modèles apportent des explications raisonnables et informatives à partir de diverses perspectives, aidant ainsi à affiner et contextualiser les résultats obtenus par des modèles de plus petite taille. De plus, ils permettent aux utilisateurs de bénéficier de nouvelles perspectives pour une meilleure compréhension des nouvelles  \cite{hu_bad_2024}.
+
+\subsection{Comparaison des méthodes}
+Les méthodes classiques, telles que l'utilisation du "sac de mots" (bag of words) et des n-grams pour analyser les fréquences de mots ou de groupes de mots, sont rapides et peu coûteuses en ressources. Cependant, elles manquent de compréhension contextuelle et peinent face aux articles trompeurs utilisant des tournures plus élaborées \cite{conroy_automatic_2015}. En revanche, les modèles de \textit{deep learning} et les \textit{transformers}, tels que BERT \cite{kaliyar_fakebert_2021} ou GPT \cite{roumeliotis_fake_2025}, offrent une meilleure précision en capturant les subtilités du langage, au prix d’une complexité accrue et d’un besoin de calcul plus important \cite{singhania_3han_2017}.
+
+\bigskip 
+Le chapitre suivant présente comment les LLMs peuvent être intégrés dans ces systèmes pour renforcer la détection automatique et améliorer l’interprétabilité des modèles existants.
+
+\section{Applications des LLMs dans la Détection des \textit{fake news}}
+\label{chap:chatgpt_fake_news}
+
+Les grands modèles de langage (LLMs) comme ceux utiliser par ChatGPT ont suscité un intérêt croissant dans la lutte contre la désinformation. Leur capacité à analyser, comprendre et générer du texte leur permet de jouer un rôle clé dans la détection des \textit{fake news}, tout en nécessitant une évaluation de leur efficacité en fonction de leur complémentarité avec d’autres approches \cite{hu_bad_2024}. Ce chapitre examine les applications des LLMs, ses atouts, ses limites et des études de cas démontrant son efficacité lorsqu'il est intégré dans des systèmes de détection.
+
+\subsection{Capacités des LLMs dans la Détection des \textit{fake news}}
+Un LLM peut être utilisé comme un outil d’aide à la classification et à l’analyse des \textit{fake news} grâce à plusieurs fonctionnalités :
+
+\begin{itemize}
+\item \textit{Analyse contextuelle et sémantique} : 
+Un LLM, grâce à son apprentissage sur de vastes corpus textuels, est capable d’identifier des incohérences sémantiques et des structures linguistiques typiques des \textit{fake news} \cite{truica_its_2023}.
+\item \textit{Détection assistée par des bases de connaissances} : En intégrant des bases de faits structurées comme Politifact, un LLM peut évaluer la véracité des affirmations en croisant les informations \cite{alghamdi_towards_2023}.
+\item \textit{Génération de raisonnements explicatifs} : Contrairement aux modèles boîte noire, un LLM peut fournir des explications détaillées sur son processus de classification, améliorant ainsi l’interprétabilité des résultats \cite{hu_bad_2024}.
+\end{itemize}
+
+\subsection{Études de Cas et Expérimentations}
+Des études récentes ont exploré l’application d'LLM dans la détection des \textit{fake news}, mettant en évidence ses forces et ses limites.
+
+\subsubsection{Comparaison avec les modèles traditionnels}
+Une analyse comparative entre des LLMs (comme BERT) et des modèles classiques comme Naïve Bayes a révélé qu'un LLM seul obtient des performances inférieures aux modèles spécifiquement entraînés sur des jeux de données annotés. Toutefois, lorsqu'il est utilisé en complément d'un modèle supervisé, le LLM apporte une plus-value en générant des raisonnements explicatifs détaillés, ce qui aide à mieux comprendre les motifs derrière les décisions prises. Cela permet non seulement d'affiner l'évaluation des textes suspects, mais aussi de réduire les faux positifs de manière significative, avec une amélioration de 2,50 \% et 1,10 \% sur les jeux de données PolitiFact et GossipCop respectivement en termes de précision et de rappel \cite{rai_fake_2022}.
+
+\subsubsection{Détection des \textit{fake news} sur les réseaux sociaux}
+Dans le cadre de la désinformation liée à la COVID-19, une expérimentation utilisant un LLM sur des jeux de données de tweets et d’articles a montré que le modèle pouvait identifier certaines fausses informations, mais rencontrait des difficultés face aux contenus nuancés et à la désinformation partielle \cite{alghamdi_towards_2023}. Cette limitation met en évidence la nécessité d’une validation croisée avec des sources factuelles externes.
+
+\subsection{Défis et Limites}
+Bien que prometteur, un LLM présente plusieurs limitations :
+
+\begin{itemize}
+\item \textit{Biais des données d'entraînement} : Les LLMs sont influencés par les biais présents dans leurs données d’apprentissage, ce qui peut affecter la fiabilité de leurs classifications \cite{hu_bad_2024}.
+\item \textit{Absence de vérification en temps réel} : un LLM n'a pas un accès direct à des bases de données constamment mises à jour, ce qui peut entraîner des erreurs lorsqu'il évalue des informations récentes \cite{truica_its_2023}.
+\item \textit{Vulnérabilité à la manipulation} : Les \textit{fake news} conçues pour contourner les détecteurs automatiques peuvent exploiter les failles des LLMs, ce qui nécessite l’intégration de techniques de défense supplémentaires \cite{rai_fake_2022}.
+\end{itemize}
+
+\bigskip 
+Les LLMs représentent une avancée significative dans la détection des \textit{fake news}. L’avenir de la lutte contre la désinformation repose sur des approches hybrides combinant intelligence artificielle et validation humaine \cite{hu_bad_2024}. Le chapitre suivant présente les collections et les méthodologies d’évaluation utilisées pour mesurer l’efficacité des systèmes de détection des \textit{fake news}.
+
+\section{\textit{Dataset} et méthodologies d’évaluation} \label{chap:dataset}
+
+L’évaluation des systèmes de détection des \textit{fake news} repose sur l’utilisation de \textit{Dataset} annotées et de méthodologies rigoureuses. Ces \textit{Dataset} permettent d’entraîner et de tester les modèles en fournissant des échantillons de textes classifiés selon leur véracité. De plus, des métriques et des protocoles d’évaluation standardisés permettent de comparer les performances des différents algorithmes.
+
+\subsection{\textit{Dataset} couramment utilisées} Différentes \textit{Dataset} ont été développées pour répondre aux besoins spécifiques des recherches sur la détection des \textit{fake news}. Ces jeux de données sont construits à partir de sources journalistiques, de vérifications factuelles ou de réseaux sociaux.
+
+\subsubsection{LIAR} 
+\href{https://paperswithcode.com/Dataset/liar}{LIAR} est un \textit{Dataset} introduite par William Yang Wang contenant plus de 12 000 déclarations politiques annotées extraites du site \textit{Politifact}. Chaque déclaration est classée selon six niveaux de véracité : “\textit{pants-fire}”, “\textit{false}”, “\textit{barely-true}”, “\textit{half-true}”, “\textit{mostly-true}” et “\textit{true}”. Cette granularité permet aux modèles d’apprendre à détecter différents degrés de désinformation  \cite{william_yang_wang_liar_2017}.
+
+\subsubsection{FakeNewsNet} 
+\href{https://paperswithcode.com/dataset/fakenewsnet}{FakeNewsNet} \cite{rai_fake_2022} est un \textit{Dataset} combinant deux ensembles bien connus : \begin{itemize} 
+\item \href{https://paperswithcode.com/Dataset/liar}{PolitiFact} : Contient des articles fact-checkés et annotés en fonction de leur fiabilité. 
+\item GossipCop : Se concentre sur les rumeurs et \textit{fake news} circulant dans le domaine du divertissement. \end{itemize} 
+Ces jeux de données sont souvent utilisés pour comparer les performances des modèles de détection \cite{rai_fake_2022, hu_bad_2024, william_yang_wang_liar_2017}.
+
+\subsubsection{WELFake} 
+WELFake \cite{verma_welfake_2021} est un \textit{Dataset} de 72 000 articles annotée vraies et fausses, intégrant des caractéristiques linguistiques extraites automatiquement ainsi que des représentations vectorielles de texte basées sur des embeddings de mots \textit{(Word2Vec, TF-IDF)}. Les caractéristiques linguistiques comprennent des patterns lexicaux et syntaxiques, qui permettent d'enrichir les données collectées pour une analyse plus fine des \textit{fake news} \cite{verma_welfake_2021, truica_its_2023}.
+
+\subsubsection{COVID-19 \textit{fake news} \textit{Dataset}} 
+Avec l’augmentation de la désinformation liée à la pandémie, plusieurs \textit{Dataset} spécifiques ont été créées. Alghamdi et al. ont développé un jeu de données combinant des articles de presse et des tweets vérifiés autour de la pandémie, permettant aux chercheurs d’évaluer l’efficacité des modèles sur des \textit{fake news} liée à la COVID-19 \cite{alghamdi_towards_2023}.
+
+\subsection{Métriques d’évaluation} L’évaluation des modèles de détection des \textit{fake news} repose sur des métriques issues de la classification supervisée, permettant d’estimer leur fiabilité et leur performance.
+
+\bigskip
+Ces trois métriques sont essentielles pour évaluer un modèle : \begin{itemize} \item \textit{Précision} : Proportion d’articles correctement identifiés comme \textit{fake news} parmi toutes les prédictions positives. \item \textit{Rappel} : Proportion de \textit{fake news} effectivement détectées parmi l’ensemble des \textit{fake news} présentes dans le corpus. \item \textit{F1-score} : Moyenne harmonique de la précision et du rappel, permettant une mesure équilibrée entre ces deux indicateurs. \end{itemize}
+
+\subsection{Protocoles d’évaluation} 
+Les protocoles d’évaluation sont essentiels pour assurer la robustesse et la reproductibilité des modèles. Plusieurs méthodologies sont couramment utilisées dans la recherche.
+
+\subsubsection{Validation croisée} 
+La validation croisée permet de mesurer la capacité de généralisation des modèles \cite{truica_its_2023}. En divisant l’ensemble des données en plusieurs sous-ensembles et en alternant les parties utilisées pour l’entraînement et le test, on obtient une estimation plus fiable de la performance réelle d’un modèle.
+
+\subsubsection{Comparaison avec des modèles de référence} 
+Pour évaluer un modèle, ses performances sont comparées à des modèles de référence tels que : 
+\begin{itemize} 
+    \item \textit{Naïve Bayes et SVM} : Utilisés comme référence dans les premières approches de classification des \textit{fake news} \cite{conroy_automatic_2015}. \item \textit{BERT et FakeBERT} : Ces modèles basés sur les transformers offrent des performances élevées en raison de leur capacité à capturer le contexte \cite{kaliyar_fakebert_2021}. 
+    \item \textit{LLMs comme GPT-3.5} : Bien que les LLMs comme GPT-3.5 aient montré une capacité d'analyse multi-perspective, ils ne surclassent pas toujours les SLMs entraînés spécifiquement pour la tâche. Cependant, leur intégration en tant que conseillers pour les SLMs peut améliorer les performances globales de détection des fake news \cite{hu_bad_2024}. 
+\end{itemize}
+
+\subsubsection{Évaluation sur des scénarios réalistes} 
+Les modèles sont également évalués sur des scénarios réels en intégrant des tests avec des \textit{fake news} récemment diffusées sur les réseaux sociaux. Cette approche permet d’identifier les limitations des modèles et leur robustesse face à de nouvelles formes de désinformation \cite{alghamdi_towards_2023}.
+
+\bigskip
+L’évaluation rigoureuse des systèmes de détection des \textit{fake news} repose sur l’utilisation de \textit{Dataset} diversifiées et de méthodologies éprouvées. L’amélioration des modèles nécessite une prise en compte des biais présents dans les jeux de données, ainsi qu’une combinaison de plusieurs métriques d’évaluation pour garantir la fiabilité des résultats. Le chapitre suivant présente les défis et limitations actuels de ces approches et propose des perspectives pour améliorer la robustesse des modèles face aux nouvelles formes de désinformation.
+
+\section{Défis et limitations actuels}
+\label{chap:defis_limitations}
+
+Bien que les avancées en intelligence artificielle aient significativement amélioré la détection des \textit{fake news}, plusieurs défis et limitations demeurent. Ces obstacles concernent à la fois des aspects techniques, éthiques et sociaux, entravant l’efficacité et l’adoption généralisée de ces technologies. 
+Sur le plan technique, les méthodes actuelles reposent sur des approches linguistiques et de réseau qui, bien que prometteuses, présentent des limites en termes de précision et de robustesse face à la diversité et à l’évolution constante des fausses nouvelles. Par exemple, les méthodes linguistiques telles que les "\textit{bag of words}" ou l'analyse syntaxique peuvent manquer de contexte, tandis que les approches de réseau dépendent fortement de la qualité et de la disponibilité des données liées. 
+D'un point de vue éthique, l'utilisation de ces technologies soulève des questions importantes concernant la confidentialité et la surveillance. Les biais algorithmiques peuvent mener à des résultats discriminatoires ou inexacts, suscitant des inquiétudes quant à la transparence et à la responsabilité des systèmes. Sur le plan social, la confiance du public et l'acceptation de ces technologies sont des défis majeurs. La crainte de la censure et la stigmatisation des utilisateurs de médias sociaux peuvent freiner leur adoption, malgré leur potentiel à améliorer la vérification des faits. De plus, l'implémentation de ces outils dans divers contextes culturels peut rencontrer des résistances dues aux différences de perception et d'acceptation de l'intelligence artificielle.
+Ce chapitre explore les principales limites rencontrées par les modèles actuels et les solutions envisageables pour les surmonter.
+
+\subsection{Défis techniques}
+
+\subsubsection{Fiabilité et robustesse des modèles}
+Les modèles de détection des \textit{fake news}, bien qu’efficaces sur des jeux de données standardisés, sont souvent vulnérables aux contenus générés artificiellement par des modèles avancés comme GPT-4 \cite{hu_bad_2024}. De plus, les nouvelles formes de désinformation, combinant textes, images et vidéos, compliquent davantage leur détection. L’adaptation des modèles aux \textit{fake news} multimodales reste un défi technique majeur \cite{alghamdi_towards_2023, beseiso_context-enhanced_2025}.
+
+\subsubsection{Biais et éthique des modèles}
+Les biais présents dans les jeux de données influencent les performances des modèles, menant à des erreurs de classification \cite{truica_its_2023}. Par exemple, certains \textit{Dataset} contiennent plus de \textit{fake news} politiques que scientifiques, ce qui peut fausser les prédictions. Il est donc essentiel d’intégrer des techniques d’atténuation des biais, telles que l’augmentation des données et la réévaluation continue des modèles \cite{verma_welfake_2021}.
+
+\subsubsection{Problèmes de généralisation}
+Les modèles entraînés sur des \textit{Dataset} spécifiques peinent parfois à s’adapter à de nouveaux contextes \cite{roumeliotis_fake_2025}. Un modèle performant sur des articles politiques peut échouer lorsqu'il est appliqué à des \textit{fake news} scientifiques ou sanitaires \cite{alghamdi_towards_2023}. La variabilité linguistique et culturelle représente un autre défi, rendant nécessaire l’entraînement des modèles sur des ensembles de données diversifiés \cite{hu_bad_2024}.
+
+
+\subsection{Défis éthiques et sociaux}
+
+\subsubsection{Impact sur la liberté d'expression}
+L’automatisation de la détection des \textit{fake news} soulève des préoccupations quant à la censure et à la liberté d'expression \cite{hu_bad_2024}. Certains algorithmes peuvent erronément classer des opinions critiques ou des discours minoritaires comme de la désinformation \cite{roumeliotis_fake_2025}. Il est donc crucial de développer des méthodes permettant de distinguer les contenus frauduleux des débats légitimes \cite{hu_bad_2024}.
+
+
+\subsubsection{Manipulation des modèles}
+Les adversaires peuvent exploiter les faiblesses des modèles pour contourner les systèmes de détection \cite{hu_bad_2024}. Les \textit{fake news} évoluent rapidement et certaines techniques, comme la reformulation ou l’usage de synonymes, peuvent tromper les algorithmes \cite{roumeliotis_fake_2025}. Cela nécessite des systèmes de détection adaptatifs, capables d’apprendre en continu et de détecter les tentatives de contournement \cite{hu_bad_2024}.
+
+\subsection{Solutions potentielles}
+
+\subsubsection{Approches hybrides}
+L’intégration de la vérification factuelle humaine avec des systèmes d’IA permettrait d’améliorer la précision des modèles \cite{rai_fake_2022}. Des plateformes comme Politifact pourraient être utilisées en complément des algorithmes automatisés pour renforcer la crédibilité des résultats \cite{verma_welfake_2021}.
+
+\subsubsection{Amélioration des jeux de données}
+L’expansion et l’amélioration des \textit{Dataset} annotées sont essentielles pour accroître la robustesse et la généralisation des modèles. L’utilisation de \textit{Dataset} multimodales intégrant texte, images et métadonnées pourrait renforcer l’efficacité des systèmes \cite{roumeliotis_fake_2025}.
+
+\subsubsection{Développement de modèles explicables}
+Les futurs systèmes devront être plus transparents et fournir des explications sur leurs décisions afin d’accroître leur adoption et leur fiabilité. L’intégration de techniques d’apprentissage interprétable, comme les visualisations d’attention et les explications textuelles générées par IA, peut améliorer la confiance des utilisateurs.
+
+\bigskip
+Les défis liés à la détection automatique des \textit{fake news} sont nombreux et nécessitent une approche combinant innovations technologiques et réflexion éthique. L’amélioration des \textit{Dataset}, le développement de modèles plus robustes et la mise en place d’une régulation adaptée sont des pistes prometteuses pour renforcer la lutte contre la désinformation. Le chapitre suivant explore les perspectives et orientations futures dans ce domaine.
+
+
+\section{Perspectives et Travaux Futurs}
+\label{chap:perspectives}
+
+L'évolution rapide des modèles d'intelligence artificielle et l'apparition constante de nouvelles menaces informationnelles nécessitent une adaptation continue des approches de détection des \textit{fake news}. Ce chapitre explore les perspectives d'amélioration des modèles existants ainsi que les axes de recherche futurs, en mettant l’accent sur des stratégies innovantes et des collaborations interdisciplinaires.
+
+\subsection{Améliorations des modèles existants}
+
+\subsubsection{Entraînement sur des données plus diversifiées}
+L'entraînement des modèles sur des ensembles de données plus vastes et variés, incluant des \textit{fake news} issues de différents contextes culturels et thématiques, permettrait d'améliorer leur robustesse face aux désinformations émergentes \cite{beseiso_context-enhanced_2025}. L'intégration de \textit{Dataset} multimodales contenant des articles politiques, scientifiques et sociaux contribuerait à renforcer la capacité de généralisation des modèles \cite{beseiso_context-enhanced_2025}.
+
+\bigskip
+L'analyse exclusive du texte est parfois insuffisante pour détecter certaines formes de désinformation, notamment celles accompagnées d’images ou de vidéos manipulées. L'intégration d'informations provenant de plusieurs sources (texte, images, vidéos, métadonnées des publications) permettrait d'améliorer significativement la précision des modèles \cite{beseiso_context-enhanced_2025}. Des architectures basées sur des modèles multi-modaux, pourraient être explorées pour mieux appréhender ces défis.
+
+
+
+\subsection{Axes de recherche futurs}
+\subsubsection{Modèles plus transparents et interprétables}
+Le développement de modèles d’intelligence artificielle explicables est un enjeu clé pour accroître la confiance des utilisateurs et faciliter l’intégration de ces technologies dans les systèmes de fact-checking \cite{kaliyar_fakebert_2021}.
+
+\subsubsection{Détection proactive des \textit{fake news}}
+Plutôt que de réagir après la diffusion de \textit{fake news}, de nouvelles approches pourraient se concentrer sur la prédiction et la prévention de leur propagation \cite{hu_bad_2024}. L’analyse des dynamiques de diffusion sur les réseaux sociaux et la détection précoce des tendances virales permettraient d’identifier les contenus suspects avant qu’ils ne deviennent massivement partagés \cite{alghamdi_towards_2023}.
+
+\subsubsection{Adaptation continue des modèles}
+Les \textit{fake news} évoluent rapidement, exploitant de nouvelles failles linguistiques et narratives. Ces failles incluent l'utilisation de reformulations, de synonymes, et de structures narratives crédibles pour contourner les systèmes de détection et manipuler l'opinion publique \cite{hu_bad_2024}. Les modèles statiques perdent en efficacité face à ces changements, comme le montre une chute de performance des CNNs, qui atteignent seulement 58,6 \% de précision sur le dataset WELFake, comparé aux modèles plus avancés comme GPT-4o qui atteignent 98,6 \% \cite{roumeliotis_fake_2025}. Le développement de modèles capables d’apprentissage continu (\textit{continual learning}) permettrait une meilleure adaptation aux nouvelles formes de désinformation \cite{alghamdi_towards_2023}. L'intégration de techniques de mise à jour dynamique des jeux de données et des pondérations des modèles améliorerait leur réactivité face aux nouvelles stratégies de désinformation \cite{rai_fake_2022}.
+
+\subsubsection{Collaboration entre IA et vérificateurs humains}
+Les modèles d'IA, bien que performants, ne peuvent pas encore remplacer entièrement l’expertise humaine en \textit{fact-checking}. Une synergie entre IA et experts permettrait d’optimiser la détection des \textit{fake news}. L’IA pourrait pré-filtrer les contenus suspects pour permettre aux vérificateurs humains de se concentrer sur les cas les plus complexes. Des plateformes collaboratives, intégrant des algorithmes d’IA et des contributions d’experts, pourraient ainsi être développées pour renforcer l’efficacité de la vérification des faits.
+
+\subsection{Impact sur la société et les médias}
+L’amélioration des systèmes de détection des \textit{fake news} pourrait renforcer la confiance dans les médias et améliorer la qualité du débat public \cite{roumeliotis_fake_2025}. Toutefois, des considérations éthiques et réglementaires devront être intégrées pour éviter les abus et garantir la liberté d’expression. La mise en place de cadres juridiques et de standards internationaux sur l’utilisation de l’IA dans la lutte contre la désinformation est essentielle pour assurer un équilibre entre contrôle et respect des droits fondamentaux \cite{yang_unsupervised_2019}. 
+Par ailleurs, récemment, des réglementations sur l'utilisation de l'IA au sein de l'Union Européenne visant à encadrer cela ont été mises en place, mais étant donné que ces régulations sont encore récentes, aucune de mes sources ne parle de ce fait.
+
+\bigskip
+Les recherches futures sur la détection des \textit{fake news} devront concilier avancées technologiques, considérations éthiques et transparence des modèles. L’intégration d’approches hybrides combinant IA, vérification humaine et analyse multi-modale représente une voie prometteuse pour une lutte plus efficace contre la désinformation. La mise en œuvre de modèles évolutifs, capables d’apprentissage continu et dotés d’une forte explicabilité, constituera un levier majeur pour améliorer la fiabilité des systèmes de détection.
+
+
+\section{Conclusion}
+\label{chap:conclusion}
+
+\subsection{Synthèse des résultats}
+Cet état de l’art a exploré les avancées majeures en matière de détection automatique des \textit{fake news} en utilisant les approches d’apprentissage automatique classiques, les architectures de deep learning et les grands modèles de langage. Nous avons mis en évidence les forces et les limites des différentes méthodes, allant des modèles SVM et Naïve Bayes jusqu’aux transformers tels que BERT et GPT-3.5.
+
+L’analyse des modèles suggère que les méthodes classiques comme les SVM et Naïve Bayes restent efficaces sur des jeux de données simples, mais qu’elles sont dépassées par les architectures neuronales avancées, notamment les réseaux avec couches d'attention et les modèles transformers \cite{conroy_automatic_2015, singhania_3han_2017}. Les travaux récents ont démontré que les modèles multi-modaux et les techniques de fine-tuning améliorent significativement la robustesse des systèmes \cite{verma_welfake_2021, alghamdi_towards_2023}. Cependant, les défis liés aux biais des modèles, à la capacité de généralisation et à l’explicabilité des décisions sont des défis majeurs \cite{kaliyar_fakebert_2021, hu_bad_2024}.
+
+\subsection{Implications pratiques et théoriques}
+D’un point de vue pratique, les avancées en IA permettent de développer des outils plus performants pour lutter contre la désinformation. Ces modèles peuvent être intégrés dans des plateformes de fact-checking, des outils de modération et des systèmes de surveillance médiatique. Toutefois, leur efficacité dépend fortement de la qualité des données d’entraînement et de leur application \cite{rai_fake_2022}.
+
+D’un point de vue théorique, ces résultats mettent en évidence la nécessité de développer des approches hybrides combinant l’analyse linguistique, l’apprentissage profond et la vérification contextuelle \cite{beseiso_context-enhanced_2025}. Par ailleurs, l’explicabilité des modèles est un enjeu clé pour garantir leur adoption et leur transparence, notamment dans les décisions automatisées \cite{truica_its_2023}.
+
+\subsection{Recommandations pour les recherches futures}
+Pour surmonter les limitations actuelles, plusieurs axes de recherche peuvent être envisagés :
+\begin{itemize}
+\item Développement de modèles plus robustes : Intégrer des mécanismes d’adaptation continue afin de détecter plus efficacement les \textit{fake news} générées par IA tout en réduisant les biais algorithmiques \cite{hu_bad_2024}.
+\item Amélioration des jeux de données : Construire des \textit{Dataset} plus équilibrées et diversifiées en intégrant des sources variées pour assurer une meilleure généralisation des modèles \cite{verma_welfake_2021}.
+\item Approches multi-modales : Combiner texte, image et vidéo pour détecter des \textit{fake news} sous différentes formes et renforcer la fiabilité des classifications \cite{alghamdi_towards_2023}.
+\item Collaboration entre IA et vérificateurs humains : Intégrer des systèmes hybrides où l’IA assiste les experts humains pour optimiser la détection et limiter les erreurs \cite{rai_fake_2022}.
+\item Transparence et éthique : Renforcer l’explicabilité des décisions prises par les modèles et mettre en place des standards de validation ouverts \cite{truica_its_2023}.
+\end{itemize}
+
+\subsection{Conclusion générale}
+La détection automatique des \textit{fake news} est un domaine en constante évolution, nécessitant des efforts soutenus pour perfectionner la précision, la robustesse et l’éthique des modèles développés. Bien que les approches basées sur les transformers aient montré des résultats intéressants, elles ne constituent pas encore une solution exhaustive face à la complexité du phénomène de la désinformation. L'avenir de la lutte contre les \textit{fake news} réside probablement dans une approche multidimensionnelle, associant l'intelligence artificielle, le journalisme d’investigation, ainsi que des régulations adaptées et des politiques publiques cohérentes. En effet, la mise en place de modèles de détection performants ne pourra avoir un réel impact que si des cadres législatifs contraignants les accompagnent. À cet égard, les récents développements dans les plateformes sociales, telles que les déclarations de X (anciennement Twitter) et Facebook concernant la gestion des contenus politiques et la manipulation de l’information, soulignent l'absence de régulations claires et de mécanismes d’application. Il est donc crucial que les législations, en particulier au sein de l’Union européenne, soient renforcées pour encadrer l’usage de ces technologies et garantir leur mise en œuvre éthique et responsable. La recherche dans ce domaine pourra ainsi contribuer à la construction d'un environnement informationnel plus fiable, transparent et équitable.
+
+\end{twocolumn}
+
+\begin{onecolumn}
+\printbibliography %Prints bibliography
+\end{onecolumn}
+
+\end{document}
